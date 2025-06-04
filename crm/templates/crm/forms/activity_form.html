@@ -1,0 +1,50 @@
+{% extends 'theme/base.html' %}
+{% load static crm_extras %}
+
+{% block content %}
+    <div class="container">
+        <form id="activityForm" action="{% url 'new-activity' %}" method="post" enctype="application/x-www-form-urlencoded" novalidate>
+            {% csrf_token %}
+            {{ form.media }}
+
+            {% if form.non_field_errors %}
+                form.non_field_errors
+            {% endif %}
+
+            {# breaking the form into sections #}
+            {% for fieldset in form.iter_fieldsets %}
+            <fieldset>
+                <legend class="p-3 bg-secondary text-white">{{ fieldset.name }}</legend>
+                {% for field in fieldset.fields %}
+                    {% if field|get_type == "list" %}
+                        <div class="field-group row mb-3">
+                            {% for f in field %}
+                                <div class="col form-group">
+                                    <label for="{{ f.name }}" class="form-label">{{ f.label }}</label>
+                                    {{ f }}
+                                    {% if f.errors %}
+                                    {{ f.errors }}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="form-group mb-3">
+                            <label for="{{ field.name }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                {{ field.errors }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </fieldset>
+            {% endfor %}
+
+            <div class="btn-group">
+                <button class="btn btn-primary" type="submit">Submit</button>
+                <a class="btn btn-secondary" role="button" href="{% url 'activities' %}">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% load static %}
+<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px; height: 100vh;">
+    <a href="/" class="d-flex align-items-center justify-content-center navbar-brand">
+        <img src="{% static 'img/logo.png' %}" alt="site logo" height="150" width="150">
+    </a>
+    <hr>
+    {% if request.user.is_authenticated %}
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a href="{% url 'index' %}" class="nav-link active" aria-current="page"><i class="fa-solid fa-house bi pe-none me-2"></i>Home</a>
+        </li>
+        <li>
+            <a href="{% url 'activities' %}" class="nav-link text-white"><i class="fa-solid fa-list-check bi pe-none me-2"></i> Activities</a>
+        </li>
+        <li>
+            <a href="#" class="nav-link text-white"><i class="fa-solid fa-user bi pe-none me-2"></i> Customers</a>
+        </li>
+    </ul>
+    <hr>
+    <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="" alt="" width="32" height="32" class="rounded-circle me-2"> <strong>{{ request.user.username }}</strong>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" style="">
+            <li><a class="dropdown-item" href="#">New project...</a></li>
+            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
+        </ul>
+    </div>
+    {% endif %}
+</div>

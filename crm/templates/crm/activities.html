@@ -1,0 +1,38 @@
+{% extends 'theme/base.html' %}
+
+{% block content %}
+	<div class="row mx-1">
+        <div id="activities" class="col-3 h-100">
+            <div class="d-flex justify-content-between align-items-center py-3 px-2 bg-secondary-subtle rounded-2">
+                <h3 class="mb-0">Activities</h3>
+                <a href="{% url 'new-activity' %}" role="button" class="btn btn-primary">Add Activity</a>
+            </div>
+            <ul id="activities-list list-group">
+                {% for activity in user.activities.all %}
+                <div class="container">
+                    <div class="d-flex">
+                        <p class="mb-0">{{ activity.created_at }}</p>
+                    </div>
+                    <div>
+                        {{ activity.subject }}
+                    </div>
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-9">
+            <div id="content-top">
+                <h3>Activity</h3>
+            </div>
+
+            <div id="content-middle">
+                <ul class="list-group">
+                    <li class="list-title list-group-item">
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

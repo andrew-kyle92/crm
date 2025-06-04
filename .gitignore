@@ -1,0 +1,14 @@
+# Django
+*/settings.py
+*/migrations/*
+
+# Node
+static/webpack/node_modules
+
+# Pycharm
+.idea
+
+# virtual environments
+.venv
+env
+venv
