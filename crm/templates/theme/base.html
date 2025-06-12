@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <title>{% block title %}{{ title }}{% endblock %} | Asset Guard Southwest</title>
     <link rel="icon" href="{% static 'img/favicon_transparent.ico' %}">
     <!-- FA kit -->
     <script src="https://kit.fontawesome.com/4a75a4df45.js" crossorigin="anonymous"></script>
@@ -24,16 +24,16 @@
     {% endblock %}
 
     {% block outer_block %}
-    <div class="w-100">
+    <div class="container-fluid">
         {% block header %}
             <!-- Header -->
             {% include 'theme/includes/header.html' %}
         {% endblock %}
 
         <!-- Main -->
-        <div class="overflow-auto">
+        <main class="{% block main_class %}flex-grow-1 overflow-auto pt-5 px-4{% endblock %}">
             {% block content %}{% endblock %}
-        </div>
+        </main>
     </div>
     {% endblock %}
 

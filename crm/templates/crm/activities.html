@@ -3,18 +3,18 @@
 {% block content %}
 	<div class="row mx-1">
         <div id="activities" class="col-3 h-100">
-            <div class="d-flex justify-content-between align-items-center py-3 px-2 bg-secondary-subtle rounded-2">
+            <div class="d-flex justify-content-between align-items-center py-3 px-2 bg-secondary-subtle rounded-top-2">
                 <h3 class="mb-0">Activities</h3>
                 <a href="{% url 'new-activity' %}" role="button" class="btn btn-primary">Add Activity</a>
             </div>
-            <ul id="activities-list list-group">
+            <ul id="activities-list" class="list-group">
                 {% for activity in user.activities.all %}
-                <div class="container">
-                    <div class="d-flex">
-                        <p class="mb-0">{{ activity.created_at }}</p>
+                <div class="activity px-2 py-2 border {% if forloop.last %}rounded-bottom-2{% endif %}" data-activity-id="{{ activity.pk }}">
+                    <div class="d-flex justify-content-between">
+                        <p class="mb-0 fw-bold">{{ activity.due_date }}</p>
                     </div>
                     <div>
-                        {{ activity.subject }}
+                        {{ activity.subject|truncatechars:75 }}
                     </div>
                 </div>
                 {% endfor %}
@@ -23,15 +23,12 @@
 
         <div class="col-9">
             <div id="content-top">
-                <h3>Activity</h3>
+                <h3 id="activityTitle" class="mb-0 border-bottom mb-4">Activity</h3>
             </div>
 
             <div id="content-middle">
-                <ul class="list-group">
-                    <li class="list-title list-group-item">
-
-                    </li>
-                </ul>
+                <h4 id="noActivityMsg" class="mb-0 fw-normal ms-3">No activity selected</h4>
+                <div id="activityDiv" hidden></div>
             </div>
         </div>
     </div>

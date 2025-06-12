@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from crm.models import Task
+from crm.models import Task, Client
 
 
 class TaskForm(forms.ModelForm):
@@ -64,6 +64,86 @@ class TaskForm(forms.ModelForm):
             yield f
 
 
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Client
+        fields = '__all__'
+        exclude = ['created_at', 'updated_at']
+
+    def __init__(self, *args, **kwargs):
+        super(CustomerForm, self).__init__(*args, **kwargs)
+
+        address_fields = {
+            "name": "Address",
+            "fields": [
+                ["street_address", "street_address_2"],
+                ["city", "state", "zip_code"],
+            ]
+        }
+
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            if visible.widget_type == "date":
+                visible.field.widget = forms.DateInput(attrs={"class": "form-control", "type": "date"})
+            elif visible.name == "phone" or visible.name == "secondary_phone" or visible.name == "other_phone":
+                visible.field.widget.attrs['class'] += ' phone'
+
+            if visible.name == "street_address":
+                visible.field.widget.attrs['placeholder'] = 'Street Address'
+                visible.field.widget.attrs['autocomplete'] = 'off'
+            elif visible.name == "street_address_2":
+                visible.field.widget.attrs['placeholder'] = 'Apartment, unit, suite, or floor #'
+                visible.field.widget.attrs['autocomplete'] = 'off'
+            elif visible.name == "city":
+                visible.field.widget.attrs['placeholder'] = 'City'
+                visible.field.widget.attrs['autocomplete'] = 'off'
+            elif visible.name == "state":
+                visible.field.widget.attrs['placeholder'] = 'State'
+                visible.field.widget.attrs['autocomplete'] = 'off'
+            elif visible.name == "zip_code":
+                visible.field.widget.attrs['placeholder'] = 'Zip'
+                visible.field.widget.attrs['autocomplete'] = 'off'
+
+        self.fieldsets = [
+            {
+                "name": "Add Customer",
+                "fields": [
+                    ["first_name", "last_name"],
+                    ["email", address_fields],
+                    ["phone", "secondary_phone"],
+                    ["other_phone", "date_of_birth"],
+                    "notes"
+                ],
+            },
+        ]
+
+    def iter_fieldsets(self):
+        for fieldset in self.fieldsets:
+            f = {"name": fieldset["name"], "fields": []}
+            for field in fieldset["fields"]:
+                if type(field) is list:
+                    fields = []
+                    for subfield in field:
+                        if type(subfield) is dict:
+                            subfields = {"name": subfield["name"], "fields": []}
+                            for s in subfield["fields"]:
+                                if type(s) is list:
+                                    flds = []
+                                    for sf in s:
+                                        flds.append(self[sf])
+                                    subfields["fields"].append(flds)
+                                else:
+                                    subfields["fields"].append(self[s])
+                            fields.append(subfields)
+                        else:
+                            fields.append(self[subfield])
+                    f["fields"].append(fields)
+                else:
+                    f["fields"].append(self[field])
+
+            yield f
+
+
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autofocus': 'autofocus'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))

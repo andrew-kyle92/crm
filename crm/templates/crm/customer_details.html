@@ -1,0 +1,69 @@
+{% extends 'theme/base.html' %}
+{% load crm_extras %}
+
+{% block content %}
+    <div class="d-flex justify-content-between">
+        <div id="middleContent" class="col-8">
+            <div id="customerInfo" class="col border rounded-2 me-3 p-0">
+                <div class="d-flex flex-row container-fluid bg-secondary-subtle">
+                    <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-city fa-icon"></i></h1>
+                    <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
+                        <p class="mb-0 fs-4">{{ customer }}</p>
+                        <a class="link-dark" href="{% url 'edit-customer' pk=customer.pk %}"><i class="fa-solid fa-pen-to-square"></i></a>
+                    </div>
+                </div>
+                <div class="d-flex flex-row">
+                    <div class="col p-3">
+                        <p class="mb-0">Street Address</p>
+                        <p class="mb-0">
+                            {% with street_address=customer|get_street_adr_str %}
+                            <a id="customerAddress" href="https://www.google.com/maps/?&q={{ street_address }}" target="_blank">
+                                {{ customer.street_address }}{% if customer.street_address_1 is not None %}, {{ customer.street_address_2 }}{% endif %}
+                                <br>
+                                {{ customer.city }}, {{ customer.state }} {{ customer.zip_code }}
+                            </a>
+                            {% endwith %}
+                        </p>
+                    </div>
+                    <div class="col p-3">
+                        <p class="mb-0">Birthday</p>
+                        <p class="mb-0">{{ customer.date_of_birth|date:"m/d/Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="rightContent" class="col-4">
+            <div id="contactInfo" class="border rounded-2 me-3 p-0 mb-3">
+                <div class="d-flex flex-row container-fluid bg-secondary-subtle align-items-center">
+                    <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-address-card fa-icon"></i></h1>
+                    <p class="mb-0 fs-4">Contact Card</p>
+                </div>
+                <div class="d-flex flex-col flex-wrap flex-grow-1">
+                    <div id="customerPhones" class="border border-1 p-3 container-fluid m-3 rounded-2">
+                        <p class="mb-1 fs-6"><i class="fa-solid fa-phone fa-icon"></i> Phone</p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">(m) {% if customer.phone %}{{ customer.phone }}{% endif %}</li>
+                            <li class="list-group-item">(s) {% if customer.secondary_phone %}{{ customer.secondary_phone }}{% endif %}</li>
+                            <li class="list-group-item">(o) {% if customer.other_phone %}{{ customer.other_phone }}{% endif %}</li>
+                        </ul>
+                    </div>
+                    <div id="customerEmail" class="border border-1 p-3 container-fluid m-3 rounded-2">
+                        <p class="mb-1 fs-6"><i class="fa-solid fa-envelope fa-icon"></i> Email</p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">{% if customer.email %}{{ customer.email }}{% endif %}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="customerNotes" class="border rounded-2 me-3 p-0">
+                <div class="d-flex flex-row container-fluid bg-secondary-subtle align-items-center">
+                    <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-note-sticky fa-icon"></i></h1>
+                    <p class="mb-0 fs-4">Customer Notes</p>
+                </div>
+                <div class="p-3">
+                    <p class="mb-0">{{ customer.notes|safe }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

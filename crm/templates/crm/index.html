@@ -1,1 +1,41 @@
 {% extends 'theme/base.html' %}
+
+{% block content %}
+	<div class="row my-4 mx-auto justify-content-evenly">
+        <div class="col-3">
+            <div class="d-flex justify-content-between mb-3 border-bottom align-items-center">
+                <h3 class="mb-0">TODOs</h3>
+                <a href="#">View All</a>
+            </div>
+            <div id="activities-list">
+                {% for activity in activities %}
+
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-3">
+            <div class="d-flex justify-content-between mb-3 border-bottom align-items-center">
+                <h3 class="mb-0">Activities</h3>
+                <a href="{% url 'activities' %}">View All</a>
+            </div>
+            <div id="activities-list">
+                {% for activity in activities %}
+
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-3">
+            <div class="d-flex justify-content-between mb-3 border-bottom align-items-center">
+                <h3 class="mb-0">Accounts</h3>
+                <a href="#">View All</a>
+            </div>
+            <div id="activities-list">
+                {% for activity in activities %}
+
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

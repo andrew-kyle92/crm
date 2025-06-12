@@ -1,3 +1,15 @@
-body {
-    height: 100vh;
+html, body {
+    font-family: sans-serif;
+    height: 100%;
+    overflow: hidden;
+}
+
+.fa-icon {
+    color: #02364D;
+}
+
+.activity:hover {
+    background: #aaaaaa;
+    cursor: pointer;
+    transition: all linear 0.25s;
 }
