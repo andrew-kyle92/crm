@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -119,6 +120,7 @@ class EditCustomerView(LoginRequiredMixin, View):
     login_url = reverse_lazy("login")
     title = "Edit Customer"
     template_name = 'crm/forms/customer_form.html'
+    map_api_key = settings.MAP_API_KEY
 
     def get(self, request, pk, *args, **kwargs):
         customer = Client.objects.get(pk=pk)
@@ -126,6 +128,7 @@ class EditCustomerView(LoginRequiredMixin, View):
         context = {
             "title": self.title,
             "form": form,
+            "map_api_key": self.map_api_key
         }
         return render(request, self.template_name, context)
 
