@@ -1,4 +1,6 @@
 django
+django-js-asset
 django-prose
 mysqlclient
+pillow
 requests

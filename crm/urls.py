@@ -9,6 +9,7 @@ urlpatterns = [
     path('activities/', views.ActivitiesView.as_view(), name='activities'),
     path('activities/new-activity/', views.AddActivityView.as_view(), name='new-activity'),
     path('activities/activity/<int:pk>/', views.ActivityView.as_view(), name='activity'),
+    path('activities/activity/<int:pk>/add-note/', views.AddNoteView.as_view(), name='add-note'),
     path('customers/', views.CustomersView.as_view(), name='customers'),
     path('customers/view/<int:pk>/', views.CustomerView.as_view(), name='customer'),
     path('customers/add/', views.AddCustomerView.as_view(), name='add-customer'),
@@ -19,6 +20,8 @@ urlpatterns = [
     # fetch requests
     path('fetch-activity/', views.fetch_activity, name='fetch-activity'),
     path('fetch-users/', views.fetch_users, name='fetch-users'),
+    path('fetch-modal-data/', views.fetch_modal_data, name='fetch-modal-data'),
+    path('fetch-submit-form/', views.fetch_submit_form, name='fetch-submit-form'),
 ]
 
 if settings.DEBUG:

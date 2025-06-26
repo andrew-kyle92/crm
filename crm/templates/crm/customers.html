@@ -7,24 +7,22 @@
             <a href="{% url 'add-customer' %}">Add customer</a>
         </div>
 
-        <table id="customersTable" class="table table-bordered table-striped">
+        <table id="customersTable" class="table table-bordered table-striped table-hover">
             <thead class="table-primary">
                 <tr>
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Email</th>
                     <th>Policies</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody class="table-group-divider">
                 {% for customer in customers %}
-                    <tr>
+                    <tr onclick="window.location='{% url 'customer' pk=customer.id %}'" class="tr-link">
                         <td>{{ customer.first_name }}</td>
                         <td>{{ customer.last_name }}</td>
                         <td>{{ customer.email }}</td>
                         <td>{{ customer.get_policies }}</td>
-                        <td><a href="{% url 'customer' pk=customer.id %}">View</a> | <a href="{% url 'edit-customer' pk=customer.id %}">Edit</a></td>
                     </tr>
                 {% endfor %}
             </tbody>

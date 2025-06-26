@@ -1,6 +1,9 @@
 // import the custom css
 import "../scss/styles.scss";
 
+// imports
+import * as bootstrap from "bootstrap";
+
 // ********** Start of main.js script **********
 // imports
 import * as functions from "./functions";
@@ -90,6 +93,63 @@ window.addEventListener("DOMContentLoaded", () => {
             collapseBtn.addEventListener("click", () => {
                 let target = collapseBtn.dataset.target;
                 let collapseType = collapseBtn.dataset.type;
+            });
+        }
+    }
+
+    // get the correct modal content
+    let modalDynBtns = document.getElementsByClassName("modal-dyn-btn");
+    if (modalDynBtns.length > 0) {
+        let contentTypes = {
+            note: {
+                type: "note",
+                title: "Add notes",
+                endpoint: new URL(document.URL).pathname + "add-note/",
+                activityId: null,
+                submitBtnText: "Add Note",
+            }
+        }
+        for (let i = 0; i < modalDynBtns.length; i++) {
+            let modalDynBtn = modalDynBtns[i];
+            modalDynBtn.addEventListener("click", async  () => {
+                let contentType = modalDynBtn.dataset.contentType;
+                let modal = document.getElementById(modalDynBtn.dataset.bsTarget.replace("#", ""));
+                let modalInstance = bootstrap.Modal.getOrCreateInstance(modal);
+                let modalHeader = modal.querySelector(".modal-title");
+                let modalBody = modal.querySelector(".modal-body");
+                let modalSubmitBtn = modal.querySelector("#modalSubmitBtn");
+                let modalData = contentTypes[contentType];
+                modalData.activityId = modalDynBtn.dataset.activityId;
+                // getting the html content
+                let res = await fetches.fetchModalData(modalData);
+                if (res.status === "error") {
+                    console.log(res.message);
+                } else {
+                    // setting up the parser
+                    let parser = new DOMParser();
+                    // parsing the HTML
+                    let html = parser.parseFromString(res.html, "text/html");
+                    // getting the form element from the parsed HTML
+                    let form = html.querySelector("form");
+                    // removing the submit button from the original layout
+                    form.removeChild(form.querySelector("#submitBtn"));
+                    // changing the modal title and body
+                    modalHeader.innerText = modalData.title;
+                    modalBody.innerHTML = form.outerHTML;
+                    modalSubmitBtn.innerText = modalData.submitBtnText;
+                    // updating the modal
+                    modalInstance.handleUpdate();
+                    // Re-initialize Prose editor
+                    if (window.djangoProse && typeof window.djangoProse.init === 'function') {
+                        window.djangoProse.init();
+                    }
+
+                    // adding and onclick function
+                    let noteData = {
+                        formId: form.id,
+                    }
+                    modalSubmitBtn.addEventListener("click", async () => functions.addActivityNote(noteData))
+                }
             });
         }
     }

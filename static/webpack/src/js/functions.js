@@ -1,3 +1,6 @@
+// ***** Imports *****
+import * as fetches from './fetches'
+
 // ***** Getting the CSRF Token *****
 export function getCookie(name) {
     let cookies = document.cookie.split(";");
@@ -12,6 +15,11 @@ export function getCookie(name) {
 }
 
 export function applyActivityFilter(data) {
-    let url = new URL(document.URL) + "?" + new URLSearchParams(data);
-    window.location.href = url;
+    window.location.href = new URL(document.URL) + "?" + new URLSearchParams(data);
+}
+
+export async function addActivityNote(data) {
+    let form = document.getElementById(data["formId"]);
+    let res = await fetches.submitActivityNote(form);
+    console.log(res);
 }

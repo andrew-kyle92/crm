@@ -41,6 +41,14 @@ header {
   border-bottom: 2px solid var(--primary);
 }
 
+.tr-link {
+  transition: all linear 0.25s;
+}
+
+.tr-link:hover {
+  cursor: pointer;
+}
+
 #activities-list {
   /*border: 1px solid var(--gray-dark);*/
   /*border-radius: 0.5rem;*/

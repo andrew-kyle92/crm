@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from crm.models import Task, Client
+from crm.models import Task, Client, Note
 
 
 class TaskForm(forms.ModelForm):
@@ -142,6 +142,16 @@ class CustomerForm(forms.ModelForm):
                     f["fields"].append(self[field])
 
             yield f
+
+
+class NoteForm(forms.ModelForm):
+    class Meta:
+        model = Note
+        fields = "__all__"
+        widgets = {
+            "task": forms.TextInput(attrs={"class": "form-control", "type": "text", "readonly": "readonly"}),
+            "created_at": forms.HiddenInput(),
+        }
 
 
 class LoginForm(AuthenticationForm):

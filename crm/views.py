@@ -10,16 +10,21 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import TemplateView
 
-from .forms import TaskForm, LoginForm, CustomerForm
+from .forms import TaskForm, LoginForm, CustomerForm, NoteForm
 from .models import Task, Client, Note
 from .utils import *
 
 
 class IndexView(LoginRequiredMixin, View):
     login_url = reverse_lazy("login")
+    redirect_field_name = "next"
     title = "Home"
     template_name = "crm/index.html"
 
@@ -39,6 +44,7 @@ class IndexView(LoginRequiredMixin, View):
 
 class ActivitiesView(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy("login")
+    redirect_field_name = "next"
     title = "Activities"
     template_name = "crm/activities.html"
 
@@ -79,6 +85,7 @@ class ActivitiesView(LoginRequiredMixin, TemplateView):
 
 class AddActivityView(LoginRequiredMixin, View):
     login_url = reverse_lazy("login")
+    redirect_field_name = "next"
     title = "Add Activity"
     template_name = "crm/forms/activity_form.html"
 
@@ -104,8 +111,9 @@ class AddActivityView(LoginRequiredMixin, View):
 
 
 class ActivityView(LoginRequiredMixin, View):
-    template_name = "crm/activity.html"
     login_url = reverse_lazy("login")
+    redirect_field_name = "next"
+    template_name = "crm/activity.html"
     title = ""
 
     def get(self, request, pk):
@@ -119,6 +127,8 @@ class ActivityView(LoginRequiredMixin, View):
 
 
 class CustomersView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("login")
+    redirect_field_name = "next"
     title = "Customers"
     template_name = 'crm/customers.html'
 
@@ -133,6 +143,7 @@ class CustomersView(LoginRequiredMixin, View):
 
 class AddCustomerView(LoginRequiredMixin, View):
     login_url = reverse_lazy("login")
+    redirect_field_name = "next"
     title = "Add Customer"
     template_name = 'crm/forms/customer_form.html'
 
@@ -159,6 +170,7 @@ class AddCustomerView(LoginRequiredMixin, View):
 
 class EditCustomerView(LoginRequiredMixin, View):
     login_url = reverse_lazy("login")
+    redirect_field_name = "next"
     title = "Edit Customer"
     template_name = 'crm/forms/customer_form.html'
     map_api_key = settings.MAP_API_KEY
@@ -179,10 +191,17 @@ class EditCustomerView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             return redirect(reverse_lazy('customer', kwargs={'pk': pk}))
+        else:
+            context = {
+                "form": form,
+                "title": self.title,
+            }
+            return render(request, self.template_name, context)
 
 
 class CustomerView(LoginRequiredMixin, View):
     login_url = reverse_lazy("login")
+    redirect_field_name = "next"
     title = " | Customers"
     template_name = 'crm/customer_details.html'
 
@@ -196,11 +215,48 @@ class CustomerView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
+class AddNoteView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("login")
+    success_url = reverse_lazy("crm")
+    title = "Add Note"
+    template_name = 'crm/forms/notes_form.html'
+
+    def get(self, request, pk, *args, **kwargs):
+        task = Task.objects.get(pk=pk)
+        form = NoteForm(initial={"assigned_to": request.user, "task": task})
+        context = {
+            "title": self.title,
+            "form": form,
+            "activity": task,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, pk, *args, **kwargs):
+        form = TaskForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse_lazy('task', kwargs={'pk': pk}))
+        else:
+            context = {
+                "form": form,
+                "title": self.title,
+            }
+            return render(request, self.template_name, context)
+
+
 # ########## Authentication Views ##########
 class UserLoginView(LoginView):
     template_name = "crm/login.html"
     title = "Login"
     form_class = LoginForm
+    success_url = reverse_lazy("index")
+    redirect_authenticated_user = True
+
+    @method_decorator(sensitive_post_parameters())
+    @method_decorator(csrf_protect)
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UserLoginView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(UserLoginView, self).get_context_data(**kwargs)
@@ -249,3 +305,37 @@ def fetch_users(request):
         return JsonResponse(users, safe=False)
     else:
         return JsonResponse({"status": "error", "message": "No users found"}, Safe=True)
+
+
+def fetch_modal_data(request):
+    modal_type = request.GET.get("type", None)
+    if modal_type is not None:
+        if modal_type == "note":
+            activity_id = request.GET.get("activityId", None)
+            activity = Task.objects.get(pk=activity_id)
+            template = "crm/forms/notes_form.html"
+            form = NoteForm(initial={"assigned_to": request.user, "task": activity})
+            form_context = {
+                "activity": activity,
+                "form": form,
+            }
+            modal_body_html = render_to_string(template, form_context)
+            res_context = {
+                "status": "success",
+                "html": modal_body_html,
+            }
+            return JsonResponse(res_context, safe=False)
+        else:
+            return JsonResponse({"status": "error", "message": "No modal found"}, safe=False)
+    else:
+        return JsonResponse({"status": "error", "message": "No modal found"}, safe=False)
+
+
+def fetch_submit_form(request):
+    form = NoteForm(request.POST)
+    if form.is_valid():
+        instance = form.save()
+        print(instance)
+        return JsonResponse({"formData": instance.__dict__}, safe=False)
+    else:
+        return JsonResponse({"formData": form.errors}, safe=False)

@@ -1,0 +1,32 @@
+{% extends 'theme/base.html' %}
+
+{% block content %}
+	<div class="d-flex justify-content-center">
+        <h5>Add Note</h5>
+    </div>
+
+    <form id="notesForm" method="POST" action="{% url 'add-note' pk=activity.pk %}" novalidate>
+        {{ form.media }}
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <p class="error">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+
+        {% for field in form %}
+            {% if not field.is_hidden %}
+            <div class="form-group mb-3">
+                <label for="{{ field.name }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        <button id="submitBtn" type="submit" class="btn btn-primary w-100">Submit</button>
+    </form>
+{% endblock %}
