@@ -76,14 +76,14 @@ class Task(models.Model):
     ]
 
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
         ('in_progress', 'In Progress'),
         ('completed', 'Completed'),
     ]
 
     subject = models.CharField(max_length=255)
     description = RichTextField()
-    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities')
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+                                    related_name='activities')
     due_date = models.DateField(blank=True, null=True)
     completed_date = models.DateField(blank=True, null=True)
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium', blank=True, null=True)
@@ -129,7 +129,7 @@ class Task(models.Model):
         ordering = ['-due_date']
 
 
-class Notes(models.Model):
+class Note(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='notes')
     description = RichTextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -165,6 +165,3 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
     else:
         instance.userprofile.save()
-
-
-

@@ -1,29 +1,51 @@
 {% extends 'theme/base.html' %}
 {% load crm_extras %}
 
+{% block main_class %}flex-grow-1 overflow-auto{% endblock %}
+
 {% block content %}
-<div id="activityDiv-{{ activity.pk }}">
-{% for fieldset in activity.get_fieldsets %}
-    <fieldset>
-        <h3 class="p-3 mb-0 bg-secondary text-white">{{ fieldset.title }}</h3>
-        {% for field in fieldset.fields %}
-            {% if field|get_type == "list" %}
-                <div class="field-group py-3 m-0 row border border-1">
-                    {% for f in field %}
-                        <div class="col {% if forloop.first %}border-end{% endif %}">
-                            <p class="fw-bold fs-5 m-auto border-bottom">{{ f.label }}</p>
-                            <p>{% if f.label == "Description" %}{{ f.field|safe }}{% else %}{{ f.field }}{% endif %}</p>
-                        </div>
-                    {% endfor %}
+
+<div class="container-fluid my-5 pt-2" style="max-height: calc(100vh - 100px); overflow-y: auto;">
+    <a href="{% url 'customer' pk=activity.client.pk %}" class="mb-3"><-- Back to {{ activity.client }}'s profile</a>
+
+    <div id="activityDiv-{{ activity.pk }}">
+    {% for fieldset in activity.get_fieldsets %}
+        <fieldset class="mb-3">
+            <h3 class="p-3 mb-0 bg-secondary text-white">{{ fieldset.title }}</h3>
+            {% for field in fieldset.fields %}
+                {% if field|get_type == "list" %}
+                    <div class="field-group py-3 m-0 row border border-1">
+                        {% for f in field %}
+                            <div class="col {% if forloop.first %}border-end{% endif %}">
+                                <p class="fw-bold fs-5 m-auto border-bottom">{{ f.label }}</p>
+                                <p>{% if f.label == "Description" %}{{ f.field|safe }}{% else %}{{ f.field }}{% endif %}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="field-group py-3 m-0 row border border-1">
+                        <p class="fw-bold fs-5 m-auto border-bottom">{{ field.label }}</p>
+                        <p>{% if field.label == "Description" %}{{ field.field|safe }}{% else %}{{ field.field }}{% endif %}</p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </fieldset>
+    {% endfor %}
+    </div>
+
+    <div id="activityNotes-{{ activity.pk }}" class="accordion">
+        <div class="accordion-item">
+            <h2>
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Notes
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <strong>This is the first item’s accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It’s also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
                 </div>
-            {% else %}
-                <div class="field-group py-3 m-0 row border border-1 {% if not field.label == "Description" %}w-50{% endif %}">
-                    <p class="fw-bold fs-5 m-auto border-bottom">{{ field.label }}</p>
-                    <p>{% if field.label == "Description" %}{{ field.field|safe }}{% else %}{{ field.field }}{% endif %}</p>
-                </div>
-            {% endif %}
-        {% endfor %}
-    </fieldset>
-{% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

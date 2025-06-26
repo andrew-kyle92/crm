@@ -1,6 +1,8 @@
 from django import template
 from django.urls import reverse_lazy
 
+import re
+
 register = template.Library()
 
 
@@ -31,3 +33,8 @@ def get_street_adr_str(value):
     street_adr_str += "+" + value.state.replace(" ", "+")
     street_adr_str += "+" + value.zip_code.replace(" ", "+")
     return street_adr_str
+
+
+@register.filter(name='unslugify')
+def unslugify(value):
+    return re.sub(f"([_|-])", " ", value)
