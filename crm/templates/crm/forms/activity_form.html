@@ -3,7 +3,7 @@
 
 {% block content %}
     <div class="container">
-        <form id="activityForm" action="{% url 'new-activity' %}" method="post" enctype="application/x-www-form-urlencoded" novalidate>
+        <form id="activityForm" method="post" enctype="application/x-www-form-urlencoded" novalidate>
             {% csrf_token %}
             {{ form.media }}
 
@@ -42,8 +42,8 @@
             {% endfor %}
 
             <div class="btn-group">
-                <button class="btn btn-primary" type="submit">Submit</button>
-                <a class="btn btn-secondary" role="button" href="{% url 'customer' pk=customer.pk %}">Cancel</a>
+                <button class="btn btn-primary btn-lg" type="submit">Submit</button>
+                <a class="btn btn-secondary btn-lg" role="button" href="{% if action == "add" %}{% url 'customer' customer_pk=customer.pk %}{% else %}{% url 'activity' customer_pk=customer.pk activity_pk=activity.pk %}{% endif %}">Cancel</a>
             </div>
         </form>
     </div>

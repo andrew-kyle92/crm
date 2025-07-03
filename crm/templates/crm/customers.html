@@ -18,7 +18,7 @@
             </thead>
             <tbody class="table-group-divider">
                 {% for customer in customers %}
-                    <tr onclick="window.location='{% url 'customer' pk=customer.id %}'" class="tr-link">
+                    <tr onclick="window.location='{% url 'customer' customer_pk=customer.id %}'" class="tr-link">
                         <td>{{ customer.first_name }}</td>
                         <td>{{ customer.last_name }}</td>
                         <td>{{ customer.email }}</td>

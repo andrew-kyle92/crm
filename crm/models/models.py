@@ -139,7 +139,10 @@ class Activity(models.Model):
                         {"label": "Priority", "field": self.priority},
                         {"label": "Status", "field": self.get_status()}
                     ],
-                    {"label": "Activity Type", "field": self.activity_type},
+                    [
+                        {"label": "Activity Type", "field": self.activity_type},
+                        {"label": "Policy", "field": self.policy}
+                    ],
                 ]
             }
         ]
@@ -170,7 +173,12 @@ class UserProfile(models.Model):
     bio = models.TextField(blank=True)
 
     # Preferences or settings
-    dark_mode_enabled = models.BooleanField(default=False)
+    THEME_CHOICES = [
+        ('auto', 'Auto (System Default)'),
+        ('light', 'Light'),
+        ('dark', 'Dark'),
+    ]
+    theme_preference = models.CharField(max_length=10, choices=THEME_CHOICES, default='auto')
     receive_notifications = models.BooleanField(default=True)
 
     # Tracking

@@ -1,0 +1,115 @@
+@import "variables";
+
+/* === Buttons === */
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary-dark);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--gray-dark);
+  color: var(--white);
+  border-color: var(--gray-dark);
+}
+
+.btn-secondary:hover {
+  background-color: var(gray-darker);
+  border-color: var(gray-darker);
+}
+
+/* === Forms === */
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(1, 54, 79, 0.25);
+  background-color: var(--white);
+  color: var(--bs-body-color);
+}
+
+/* === Tables === */
+.table {
+  color: var(--bs-body-color);
+}
+
+.table-primary {
+  background-color: var(--primary) !important;
+  color: var(--white) !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: var(--gray-light);
+}
+
+/* === Backgrounds === */
+.bg-dark {
+  background-color: var(--gray-dark);
+}
+
+.bg-light {
+  background-color: var(--gray-light) !important;
+}
+
+.bg-secondary {
+  background-color: var(--primary-dark) !important;
+  color: var(--white) !important;
+}
+
+.bg-secondary-subtle {
+  background-color: rgba(1, 54, 79, 0.05) !important;
+}
+
+/* === Text Colors === */
+.text-bg-dark {
+  background-color: var(--gray-dark);
+  color: var(--white);
+}
+
+.text-white {
+  color: var(--white) !important;
+}
+
+.input-group-text {
+  background-color: inherit;
+  color: inherit;
+}
+
+/* === Borders === */
+.border {
+  border-color: var(--bs-border-color) !important;
+}
+
+.border-1 {
+  border-width: 1px !important;
+}
+
+.border-end {
+  border-right: 1px solid var(--bs-border-color) !important;
+}
+
+.border-bottom {
+  border-bottom: 1px solid var(--bs-border-color) !important;
+}
+
+.border-primary {
+  border-color: var(--primary) !important;
+}
+
+.border-secondary {
+  border-color: var(--primary-dark) !important;
+}
+
+/* === Navigation === */
+.nav-link {
+  color: var(--bs-body-color);
+}
+
+/* === Dropdown === */
+.dropdown-item:hover {
+  background-color: inherit;
+  color: var(--bs-link-color);
+}

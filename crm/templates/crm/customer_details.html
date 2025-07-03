@@ -9,7 +9,7 @@
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-city fa-icon"></i></h1>
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
                         <p class="mb-0 fs-4">{{ customer }}</p>
-                        <a class="link-dark" href="{% url 'edit-customer' pk=customer.pk %}"><i class="fa-solid fa-pen-to-square"></i></a>
+                        <a class="link-dark" href="{% url 'edit-customer' customer_pk=customer.pk %}"><i class="fa-solid fa-pen-to-square"></i></a>
                     </div>
                 </div>
                 <div class="d-flex flex-row">
@@ -37,7 +37,7 @@
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-file fa-icon"></i></h1>
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
                         <p class="mb-0 fs-4">Policies</p>
-                        <a class="link-dark" href="{% url 'add-policy' pk=customer.pk %}">Add policy</a>
+                        <a class="link-dark" href="{% url 'add-policy' customer_pk=customer.pk %}">Add policy</a>
                     </div>
                 </div>
                 <div class="px-2 mt-3" style="overflow: auto; max-height: 450px; height: auto">
@@ -72,13 +72,13 @@
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-clipboard fa-icon"></i></h1>
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
                         <p class="mb-0 fs-4">Activities</p>
-                        <a class="link-dark" href="{% url 'new-activity' %}?pk={{ customer.pk }}">Add activity</a>
+                        <a class="link-dark" href="{% url 'new-activity' customer_pk=customer.pk %}">Add activity</a>
                     </div>
                 </div>
                 <div class="px-2 mt-3" style="overflow: auto; max-height: 450px; height: auto">
                     {% for activity in customer.activities.all %}
                         {% if activity.status != "completed" %}
-                        <div class="card mb-2 c-link" onclick="window.location='{% url 'activity' pk=activity.pk %}'">
+                        <div class="card mb-2 c-link" onclick="window.location='{% url 'activity' customer_pk=customer.pk activity_pk=activity.pk %}'">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h5 class="card-title mb-0">{{ activity.status | unslugify | title }}</h5>

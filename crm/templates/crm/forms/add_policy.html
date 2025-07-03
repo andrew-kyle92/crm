@@ -7,7 +7,7 @@
             <h3>Add Policy</h3>
         </div>
 
-        <form id="policyForm" method="POST" action="{% url 'add-policy' pk=customer.pk %}">
+        <form id="policyForm" method="POST">
             {% csrf_token %}
 
             {% if form.non_field_errors %}
@@ -72,8 +72,8 @@
                 </fieldset>
             {% endfor %}
 
-            <button id="submitBtn" type="submit" class="btn btn-primary">Submit</button>
-            <a role="button" class="btn btn-secondary" href="{% url 'customer' pk=customer.pk %}">Cancel</a>
+            <button id="submitBtn" type="submit" class="btn btn-primary btn-lg">Submit</button>
+            <a role="button" class="btn btn-secondary btn-lg" href="{% url 'customer' customer_pk=customer.pk %}">Cancel</a>
         </form>
     </div>
 {% endblock %}

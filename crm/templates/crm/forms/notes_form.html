@@ -5,7 +5,7 @@
         <h5>Add Note</h5>
     </div>
 
-    <form id="notesForm" method="POST" action="{% url 'add-note' pk=activity.pk %}">
+    <form id="notesForm" method="POST" action="{% url 'add-note' customer_pk=activity.client.pk activity_pk=activity.pk %}">
         {{ form.media }}
         {% csrf_token %}
 

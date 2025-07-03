@@ -5,6 +5,8 @@ from crm.models import Activity, Client, Note, Policy
 
 
 class ActivityForm(forms.ModelForm):
+    policy = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-select'}))
+
     class Meta:
         model = Activity
         fields = '__all__'
@@ -32,10 +34,10 @@ class ActivityForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        client = kwargs.pop('customer_instance')
         super(ActivityForm, self).__init__(*args, **kwargs)
-        client = kwargs.pop('instance')
-        policy_choices = client.get_policies()
-        self.fields['policy'].choices = policy_choices
+        policy_choices = client.policies.all()
+        self.fields['policy'].queryset = policy_choices
 
         self.fieldsets = [
             {
@@ -85,27 +87,27 @@ class CustomerForm(forms.ModelForm):
         }
 
         for visible in self.visible_fields():
-            visible.field.widgets.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['class'] = 'form-control'
             if visible.widget_type == "date":
-                visible.field.widgets = forms.DateInput(attrs={"class": "form-control", "type": "date"})
+                visible.field.widget = forms.DateInput(attrs={"class": "form-control", "type": "date"})
             elif visible.name == "phone" or visible.name == "secondary_phone" or visible.name == "other_phone":
-                visible.field.widgets.attrs['class'] += ' phone'
+                visible.field.widget.attrs['class'] += ' phone'
 
             if visible.name == "street_address":
-                visible.field.widgets.attrs['placeholder'] = 'Street Address'
-                visible.field.widgets.attrs['autocomplete'] = 'off'
+                visible.field.widget.attrs['placeholder'] = 'Street Address'
+                visible.field.widget.attrs['autocomplete'] = 'off'
             elif visible.name == "street_address_2":
-                visible.field.widgets.attrs['placeholder'] = 'Apartment, unit, suite, or floor #'
-                visible.field.widgets.attrs['autocomplete'] = 'off'
+                visible.field.widget.attrs['placeholder'] = 'Apartment, unit, suite, or floor #'
+                visible.field.widget.attrs['autocomplete'] = 'off'
             elif visible.name == "city":
-                visible.field.widgets.attrs['placeholder'] = 'City'
-                visible.field.widgets.attrs['autocomplete'] = 'off'
+                visible.field.widget.attrs['placeholder'] = 'City'
+                visible.field.widget.attrs['autocomplete'] = 'off'
             elif visible.name == "state":
-                visible.field.widgets.attrs['placeholder'] = 'State'
-                visible.field.widgets.attrs['autocomplete'] = 'off'
+                visible.field.widget.attrs['placeholder'] = 'State'
+                visible.field.widget.attrs['autocomplete'] = 'off'
             elif visible.name == "zip_code":
-                visible.field.widgets.attrs['placeholder'] = 'Zip'
-                visible.field.widgets.attrs['autocomplete'] = 'off'
+                visible.field.widget.attrs['placeholder'] = 'Zip'
+                visible.field.widget.attrs['autocomplete'] = 'off'
 
         self.fieldsets = [
             {

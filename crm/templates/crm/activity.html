@@ -5,8 +5,11 @@
 
 <div class="container-fluid my-3">
     <div class="d-flex justify-content-between mb-3 align-items-center">
-        <a href="{% url 'customer' pk=activity.client.pk %}" class="text-decoration-none"><i class="fa-solid fa-backward-step"></i> Back to {{ activity.client }}'s profile</a>
-        <button id="activityCompleteBtn" class="btn btn-outline-secondary border-0" data-activity-id="{{ activity.id }}" data-customer-id="{{ activity.client.pk }}">Mark complete</button>
+        <a href="{% url 'customer' customer_pk=activity.client.pk %}" class="text-decoration-none"><i class="fa-solid fa-backward-step"></i> Back to {{ activity.client }}'s profile</a>
+        <div>
+            <button id="activityCompleteBtn" class="btn btn-outline-secondary border-0" data-activity-id="{{ activity.id }}" data-customer-id="{{ activity.client.pk }}">Mark complete</button>
+            <a role="button" class="btn btn-outline-secondary border-0" href="{% url 'edit-activity' customer_pk=activity.client.pk activity_pk=activity.id %}"><i class="fa-solid fa-pen-to-square"></i></a>
+        </div>
     </div>
     {# Main activity details #}
     <div class="d-flex justify-content-between overflow-auto pt-2 px-2" style="max-height: calc(100vh - 100px); overflow-y: auto;">

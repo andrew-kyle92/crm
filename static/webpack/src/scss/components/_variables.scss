@@ -1,0 +1,30 @@
+:root {
+  /* === Brand Colors === */
+  --primary: #01364F;
+  --primary-dark: #00293a;
+  --accent: #FFC107;
+  --c-error: #ff0033;
+
+  /* === Grayscale === */
+  --gray-dark: #2E2E2E;
+  --gray-darker: #1f1f1f;
+  --gray-light: #F5F5F5;
+  --white: #FFFFFF;
+
+  /* === Utilities === */
+  --icon-color: #02364D;
+  --hover-bg: #cccccc;
+  --hover-bg-alt: #e9f7f7;
+  --hover-bg-subtle: lightgray;
+  --placeholder-color: #888;
+  --error-bg: #ffebee;
+  --spinner-border: #01364F;
+
+  /* === Bootstrap-Compatible Tokens === */
+  --bs-body-bg: var(--gray-light);
+  --bs-body-color: var(--gray-dark);
+  --bs-card-bg: var(--white);
+  --bs-card-color: var(--gray-dark);
+  --bs-border-color: #ccc;
+  --bs-link-color: var(--primary);
+}

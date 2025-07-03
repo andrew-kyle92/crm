@@ -75,8 +75,8 @@
             {% endfor %}
 
             <div class="input-group">
-                <button type="submit" class="btn btn-primary">Submit</button>
-                <a role="button" class="btn btn-secondary" href="{% if action == "add" %}{% url 'customers' %}{% else %}{% url 'customer' pk=customer.pk %}{% endif %}">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+                <a role="button" class="btn btn-secondary btn-lg" href="{% if action == "add" %}{% url 'customers' %}{% else %}{% url 'customer' customer_pk=customer.pk %}{% endif %}">Cancel</a>
             </div>
         </form>
     </div>

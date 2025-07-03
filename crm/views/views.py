@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -90,14 +90,9 @@ class AddActivityView(LoginRequiredMixin, View):
     template_name = "crm/forms/activity_form.html"
     action = "add"
 
-    def get(self, request):
-        customer_id = request.GET.get("pk", None)
-        customer = None
-        if customer_id:
-            customer = Client.objects.get(pk=customer_id)
-            form = ActivityForm(initial={"assigned_to": request.user, "client": customer}, instance=customer)
-        else:
-            form = ActivityForm(initial={"assigned_to": request.user})
+    def get(self, request, customer_pk):
+        customer = Client.objects.get(pk=customer_pk)
+        form = ActivityForm(initial={"assigned_to": request.user, "client": customer}, instance=customer)
         context = {
             "title": self.title,
             "form": form,
@@ -107,8 +102,9 @@ class AddActivityView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
     @staticmethod
-    def post(request):
-        form = ActivityForm(request.POST, request.FILES)
+    def post(request, customer_pk):
+        customer = Client.objects.get(pk=customer_pk)
+        form = ActivityForm(request.POST, request.FILES, instance=customer)
         if form.is_valid():
             form.save()
         return redirect('activities')
@@ -126,7 +122,22 @@ class EditActivityView(LoginRequiredMixin, UpdateView):
         context = super(EditActivityView, self).get_context_data(**kwargs)
         context["action"] = self.action
         context["title"] = "Edit Activity"
+        context["customer"] = Client.objects.get(pk=self.kwargs.get("customer_pk"))
         return context
+
+    def get_object(self, queryset=None):
+        activity_pk = self.kwargs.get("activity_pk")
+        obj = get_object_or_404(Activity, pk=activity_pk)
+        return obj
+
+    def get_form_kwargs(self):
+        kwargs = super(EditActivityView, self).get_form_kwargs()
+        self.initial["instance"] = self.get_object()
+        kwargs["customer_instance"] = Client.objects.get(pk=self.kwargs.get("customer_pk"))
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy("activity", kwargs={"pk": self.object.pk})
 
 
 class ActivityView(LoginRequiredMixin, View):
@@ -135,8 +146,8 @@ class ActivityView(LoginRequiredMixin, View):
     template_name = "crm/activity.html"
     title = ""
 
-    def get(self, request, pk):
-        activity = Activity.objects.get(pk=pk)
+    def get(self, request, customer_pk, activity_pk):
+        activity = Activity.objects.get(pk=activity_pk)
         self.title = activity.subject[0:50] + " | Activity"
         context = {
             "title": self.title,
@@ -201,29 +212,31 @@ class EditCustomerView(LoginRequiredMixin, View):
     map_api_key = settings.MAP_API_KEY
     action = "edit"
 
-    def get(self, request, pk, *args, **kwargs):
-        customer = Client.objects.get(pk=pk)
+    def get(self, request, customer_pk, *args, **kwargs):
+        customer = Client.objects.get(pk=customer_pk)
         form = CustomerForm(instance=customer)
         context = {
             "title": self.title,
             "form": form,
             "map_api_key": self.map_api_key,
             "action": self.action,
+            "customer": customer,
         }
         return render(request, self.template_name, context)
 
-    def post(self, request, pk, *args, **kwargs):
-        customer = Client.objects.get(pk=pk)
+    def post(self, request, customer_pk, *args, **kwargs):
+        customer = Client.objects.get(pk=customer_pk)
         form = CustomerForm(request.POST, request.FILES, instance=customer)
         if form.is_valid():
             form.save()
-            return redirect(reverse_lazy('customer', kwargs={'pk': pk}))
+            return redirect(reverse_lazy('customer', kwargs={'pk': customer_pk}))
         else:
             context = {
                 "form": form,
                 "title": self.title,
                 "map_api_key": self.map_api_key,
                 "action": self.action,
+                "customer": customer,
             }
             return render(request, self.template_name, context)
 
@@ -234,8 +247,8 @@ class CustomerView(LoginRequiredMixin, View):
     title = " | Customers"
     template_name = 'crm/customer_details.html'
 
-    def get(self, request, pk, *args, **kwargs):
-        customer = Client.objects.get(pk=pk)
+    def get(self, request, customer_pk, *args, **kwargs):
+        customer = Client.objects.get(pk=customer_pk)
         self.title = customer.__str__() + self.title
         context = {
             "title": self.title,
@@ -289,16 +302,16 @@ class AddPolicyView(LoginRequiredMixin, CreateView):
         context = super(AddPolicyView, self).get_context_data(**kwargs)
         context["title"] = self.title
         context["action"] = self.action
-        context["customer"] = Client.objects.get(pk=self.kwargs["pk"])
+        context["customer"] = Client.objects.get(pk=self.kwargs["customer_pk"])
         return context
 
     def get(self, request, *args, **kwargs):
-        kwargs["pk"] = kwargs.get("pk")
+        kwargs["customer_pk"] = kwargs.get("customer_pk")
         return super(AddPolicyView, self).get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(AddPolicyView, self).get_form_kwargs()
-        kwargs["initial"]["client"] = Client.objects.get(pk=self.kwargs["pk"])
+        kwargs["initial"]["client"] = Client.objects.get(pk=self.kwargs["customer_pk"])
         return kwargs
 
 

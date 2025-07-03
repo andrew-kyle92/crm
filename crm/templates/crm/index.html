@@ -9,7 +9,7 @@
             </div>
             <div id="todays-activities-list" class="list-group list-group-flush">
                 {% for activity in todays_activities %}
-                <a class="list-group-item list-group-item-action" href="{% url 'activity' pk=activity.id %}">
+                <a class="list-group-item list-group-item-action" href="{% url 'activity' customer_pk=activity.client.pk activity_pk=activity.id %}">
                     <div class="d-flex justify-content-between w-100">
                         <h5 class="mb-1">{{ activity.client }}</h5>
                         <small>{{ activity.due_date }}</small>
@@ -27,7 +27,7 @@
             </div>
             <div id="activities-list" class="list-group list-group-flush">
                 {% for activity in activities %}
-                <a class="list-group-item list-group-item-action" href="{% url 'activity' pk=activity.id %}">
+                <a class="list-group-item list-group-item-action" href="{% url 'activity' customer_pk=activity.client.pk activity_pk=activity.id %}">
                     <div class="d-flex justify-content-between w-100">
                         <h5 class="mb-1">{{ activity.client }}</h5>
                         <small>{{ activity.due_date }}</small>
@@ -46,7 +46,7 @@
             <div id="customers-list">
                 <ul class="list-group list-group-flush rounded-2">
                 {% for customer in customers %}
-                    <a class="list-group-item list-group-item-action p-2" href="{% url 'customer' pk=customer.pk %}">{{ customer }}</a>
+                    <a class="list-group-item list-group-item-action p-2" href="{% url 'customer' customer_pk=customer.pk %}">{{ customer }}</a>
                 {% endfor %}
                 </ul>
             </div>

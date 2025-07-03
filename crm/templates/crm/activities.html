@@ -31,12 +31,12 @@
             <tbody class="table-group-divider">
                 {% for activity in page.object_list %}
                 <tr>
-                    <td><a href="{% url 'customer' pk=activity.client.pk %}">{{ activity.client.first_name }} {{ activity.client.last_name }}</a></td>
+                    <td><a href="{% url 'customer' customer_pk=activity.client.pk %}">{{ activity.client.first_name }} {{ activity.client.last_name }}</a></td>
                     <td>{{ activity.subject }}</td>
                     <td>{{ activity.due_date | date:"m/d/Y" }}</td>
                     <td>{{ activity.created_at | date:"m/d/Y" }}</td>
                     <td>{{ activity.status | unslugify | title }}</td>
-                    <td><a href="{% url 'activity' pk=activity.pk %}">View</a> | <a href="{% url 'edit-activity' pk=activity.pk %}">Edit</a></td>
+                    <td><a href="{% url 'activity' customer_pk=activity.client.pk activity_pk=activity.pk %}">View</a> | <a href="{% url 'edit-activity' customer_pk=activity.client.pk activity_pk=activity.pk %}">Edit</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
