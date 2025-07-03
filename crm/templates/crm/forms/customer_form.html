@@ -6,7 +6,7 @@
 {% block content %}
 	<div class="container my-5 pt-4" style="max-height: calc(100vh - 100px); overflow-y: auto;">
         <div class="d-flex justify-content-between mb-3 border-bottom">
-            <h3 class="mb-0">Add new customer</h3>
+            <h3 class="mb-0">{% if action == "add" %}Add new{% else %}Edit{% endif %} customer</h3>
         </div>
 
         <form id="customerForm" method="post">
@@ -76,14 +76,13 @@
 
             <div class="input-group">
                 <button type="submit" class="btn btn-primary">Submit</button>
-                <a role="button" class="btn btn-secondary" href="{% url 'customers' %}">Cancel</a>
+                <a role="button" class="btn btn-secondary" href="{% if action == "add" %}{% url 'customers' %}{% else %}{% url 'customer' pk=customer.pk %}{% endif %}">Cancel</a>
             </div>
         </form>
     </div>
 {% endblock %}
 
 {% block extra_js %}
-{#<script src="{% static 'js/../../../../static/webpack/src/js/addr_script.js' %}"></script>#}
 <script
     src="https://maps.googleapis.com/maps/api/js?key={{ map_api_key }}&loading=async&libraries=places&callback=initAutocomplete"
     async defer

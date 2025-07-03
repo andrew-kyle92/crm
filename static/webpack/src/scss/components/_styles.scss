@@ -41,12 +41,16 @@ header {
   border-bottom: 2px solid var(--primary);
 }
 
-.tr-link {
-  transition: all linear 0.25s;
+.tr-link, .c-link {
+  transition: all linear 0.15s;
 }
 
-.tr-link:hover {
+.tr-link:hover, .c-link:hover {
   cursor: pointer;
+}
+
+.c-link:hover {
+  background-color: lightgray;
 }
 
 #activities-list {
@@ -118,116 +122,29 @@ header {
   font-style: italic;
 }
 
-/* BOOTSTRAP OVERRIDES */
-
-/* Buttons */
-.btn-primary {
-  background-color: var(--primary);
-  border-color: var(--primary-dark);
-  color: var(--white);
+/* Loading styles */
+.loading {
+  filter: blur(5px);
 }
 
-.btn-primary:hover {
-  background-color: var(--primary-dark);
-  border-color: var(--primary-dark);
+.loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 120px;
+  height: 120px;
+  margin: -76px 0 0 -76px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
 }
 
-.btn-secondary {
-  background-color: var(--gray-dark);
-  border-color: var(--gray-dark);
-  color: var(--white);
-}
-
-.btn-secondary:hover {
-  background-color: #1e1e1e;
-  border-color: #1e1e1e;
-}
-
-/* Sidebar & Navigation */
-.text-bg-dark {
-  background-color: var(--gray-dark) !important;
-  color: var(--white) !important;
-}
-
-.nav-link.text-white {
-  color: var(--white) !important;
-}
-
-.nav-link.active {
-  background-color: var(--primary) !important;
-  color: var(--white) !important;
-}
-
-/* Table Styling */
-.table-primary {
-  background-color: var(--primary) !important;
-  color: var(--white) !important;
-}
-
-.table thead.table-primary,
-.table.table-primary {
-  --bs-table-bg: var(--primary) !important;
-  --bs-table-color: var(--white) !important;
-  background-color: var(--primary) !important;
-  color: var(--white) !important;
-}
-
-.table-striped > tbody > tr:nth-of-type(odd) {
-  background-color: var(--gray-light);
-}
-
-/* Form Controls */
-.form-control:focus, .form-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 0.2rem rgba(0, 165, 165, 0.25);
-}
-
-/* Backgrounds */
-.bg-dark {
-  background-color: var(--gray-dark) !important;
-}
-
-.bg-light {
-  background-color: var(--gray-light) !important;
-}
-
-.bg-secondary {
-  background-color: var(--primary-dark) !important;
-  color: var(--white) !important;
-}
-
-.bg-secondary-subtle {
-  background-color: rgba(0, 165, 165, 0.1) !important;
-}
-
-/* Text Utilities */
-.text-white {
-  color: var(--white) !important;
-}
-
-/* Borders */
-.border-primary {
-  border-color: var(--primary) !important;
-}
-
-.border-secondary {
-  border-color: var(--gray-dark) !important;
-}
-
-.border {
-  border-color: var(--gray-dark) !important;
-}
-
-.border-bottom {
-  border-bottom: 1px solid;
-}
-
-.border-end {
-  border-right: 1px solid;
-}
-
-.border-1 {
-  border-width: 1px !important;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /** Django Prose Editor **/

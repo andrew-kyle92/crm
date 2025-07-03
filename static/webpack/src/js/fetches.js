@@ -15,8 +15,12 @@ export const fetchActivity = async (activityId) => {
     });
 }
 
-export const submitActivityNote = async (form) => {
+export const submitActivityNote = async (form, instanceId=null) => {
     let formData = new FormData(form);
+    if (instanceId) {
+        formData.append("instance_id", instanceId);
+    }
+
     return await fetch('/fetch-submit-form/',  {
         method: 'post',
         headers: {
@@ -25,7 +29,7 @@ export const submitActivityNote = async (form) => {
         body: formData,
     }).then(async response => {
         return response.json()
-    })
+    });
 }
 
 export const fetchUsers = async (q) => {
@@ -51,5 +55,20 @@ export const fetchModalData = async (modalData) => {
         }
     }).then(async response => {
         return response.json()
+    });
+}
+
+export const fetchMarkComplete = async (activityId) => {
+    let url = '/fetch-mark-complete/?' + new URLSearchParams({
+       activityId: activityId
+    });
+    return await fetch(url, {
+        method: 'get',
+        credentials: 'same-origin',
+        headers: {
+            'x-CSRFToken': functions.getCookie("csrftoken"),
+        }
+    }).then(async response => {
+        return response.json();
     });
 }

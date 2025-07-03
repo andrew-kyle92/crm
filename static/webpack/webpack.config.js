@@ -10,7 +10,7 @@ module.exports = {
     entry: {
 
         // crm: ["./src/css/styles.css", "./src/js/main.js", './src/js/dragAndDrop.js', './src/js/init_tinymce.js'],
-        crm: ["./src/js/main.js", "./src/js/header_search.js"]
+        crm: ["./src/js/main.js", "./src/js/header_search.js", "./src/js/views/activities.js"]
     },
     output: {
         filename: "[name].bundle.js",

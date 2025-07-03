@@ -1,8 +1,12 @@
 from datetime import datetime as dt
 
-from crm.models import Task, Client
+from django.template.loader import render_to_string
+
+from crm.forms import NoteForm
+from crm.models import *
 
 from django.db.models import Q
+from django.apps import apps
 
 
 def get_users_list(query):
@@ -23,6 +27,81 @@ def get_users_list(query):
         return False
 
 
+class ModalContextBuilder:
+    def get_modal_content(self, data, **kwargs):
+        """
+        Takes a query dictionary and gets the form html data relevant to the type.
+        Returns a context dictionary.
+        """
+
+        # setting the correct modal content type
+        modal_content = self.get_model_context_type(data.get("type"))
+
+        # getting kwargs
+        for kwarg in modal_content["kwargsList"]:
+            try:
+                # trying the initial query dict first
+                if data.get(kwarg, None) is not None:
+                    modal_content["vars"][kwarg] = data.get(kwarg, None)
+                elif kwargs.get(kwarg, None) is not None:
+                    # trying the kwargs
+                    modal_content["vars"][kwarg] = kwargs.get(kwarg, None)
+                else:
+                    modal_content["vars"][kwarg] = None
+            except KeyError:
+                return Exception(f"{kwarg} is not a valid kwarg")
+
+        # prepping the form
+        form_kwargs = {}
+        form = None
+        # getting the kwargs for the form
+        if data.get("type") == "note":
+            instance = Activity.objects.get(pk=modal_content["vars"]["activityId"])
+            form_kwargs["initial"] = {"user": modal_content["vars"]["user"], "activity": instance}
+            # initializing the form
+            form = NoteForm(**form_kwargs)
+        elif data.get("type") == "editNote":
+            instance = Note.objects.get(pk=modal_content["vars"]["instanceId"])
+            form_kwargs["instance"] = instance
+            # initializing the form
+            form = NoteForm(**form_kwargs)
+
+        # prepping the template context
+        if data.get("type") == "note" or data.get("type") == "editNote":
+            activity = Activity.objects.get(pk=modal_content["vars"]["activityId"])
+            modal_content["template_context"]["activity"] = activity
+            modal_content["template_context"]["form"] = form
+
+        html = render_to_string(template_name=modal_content["template"], context=modal_content["template_context"])
+        return html
+
+    @staticmethod
+    def get_model_context_type(content_type):
+        modal_content_types = {
+            'note': {
+                "template": "crm/forms/notes_form.html",
+                "kwargsList": ["user", "activityId"],
+                "template_context": {"activity": None, "form": None},
+                "vars": {},
+            },
+            'editNote': {
+                "template": "crm/forms/notes_form.html",
+                "kwargsList": ["user", "activityId", "instanceId"],
+                "template_context": {"activity": None, "form": None},
+                "vars": {},
+            },
+        }
+
+        return modal_content_types[content_type]
+
+    @staticmethod
+    def get_model(model_name):
+        try:
+            return apps.get_model("crm", model_name)
+        except LookupError:
+            return None
+
+
 class URLFilters:
     def get_activities(self, params):
         # assigning param vars
@@ -40,11 +119,11 @@ class URLFilters:
         if direction is not None:
             # checking the direction
             if params.get("") == 'desc':
-                return Task.objects.filter(**query_by).order_by(f'-{column}')
+                return Activity.objects.filter(**query_by).order_by(f'-{column}')
             else:
-                return Task.objects.filter(**query_by).order_by(column)
+                return Activity.objects.filter(**query_by).order_by(column)
         else:
-            return Task.objects.filter(**query_by)
+            return Activity.objects.filter(**query_by)
 
     @staticmethod
     def get_filter_param(filter_type):

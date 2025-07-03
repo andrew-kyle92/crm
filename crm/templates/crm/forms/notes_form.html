@@ -5,7 +5,7 @@
         <h5>Add Note</h5>
     </div>
 
-    <form id="notesForm" method="POST" action="{% url 'add-note' pk=activity.pk %}" novalidate>
+    <form id="notesForm" method="POST" action="{% url 'add-note' pk=activity.pk %}">
         {{ form.media }}
         {% csrf_token %}
 
@@ -18,10 +18,14 @@
         {% for field in form %}
             {% if not field.is_hidden %}
             <div class="form-group mb-3">
-                <label for="{{ field.name }}" class="form-label">{{ field.label }}</label>
+                <label for="id_{{ field.name }}" class="form-label">{{ field.label }}</label>
                 {{ field }}
                 {% if field.errors %}
-                    {{ field.errors }}
+                    <div class="errors">
+                    {% for error in field.errors %}
+                        <span class="error">{{ error }}</span>
+                    {% endfor %}
+                    </div>
                 {% endif %}
             </div>
             {% endif %}

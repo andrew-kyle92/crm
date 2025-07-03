@@ -1,17 +1,18 @@
 {% extends 'theme/base.html' %}
 {% load crm_extras %}
 
-{% block main_class %}flex-grow-1 overflow-auto{% endblock %}
-
 {% block content %}
 
-<div class="container-fluid my-5 py-3" style="max-height: calc(100vh - 100px); overflow-y: auto;">
-    <a href="{% url 'customer' pk=activity.client.pk %}" class="text-decoration-none"><i class="fa-solid fa-backward-step"></i> Back to {{ activity.client }}'s profile</a>
-
-    <div class="d-flex justify-content-between">
-        <div id="activityDiv-{{ activity.pk }}" class="col-6">
+<div class="container-fluid my-3">
+    <div class="d-flex justify-content-between mb-3 align-items-center">
+        <a href="{% url 'customer' pk=activity.client.pk %}" class="text-decoration-none"><i class="fa-solid fa-backward-step"></i> Back to {{ activity.client }}'s profile</a>
+        <button id="activityCompleteBtn" class="btn btn-outline-secondary border-0" data-activity-id="{{ activity.id }}" data-customer-id="{{ activity.client.pk }}">Mark complete</button>
+    </div>
+    {# Main activity details #}
+    <div class="d-flex justify-content-between overflow-auto pt-2 px-2" style="max-height: calc(100vh - 100px); overflow-y: auto;">
+        <div id="activityDiv-{{ activity.pk }}" class="col-6 h-100 justify-content-between">
         {% for fieldset in activity.get_fieldsets %}
-            <fieldset class="mb-3">
+            <fieldset class="{% if not forloop.last %}mb-4{% endif %}">
                 <h3 class="p-3 mb-0 bg-secondary text-white">{{ fieldset.title }}</h3>
                 {% for field in fieldset.fields %}
                     {% if field|get_type == "list" %}
@@ -33,7 +34,7 @@
             </fieldset>
         {% endfor %}
         </div>
-
+        {# activity notes #}
         <div id="activityNotes-{{ activity.pk }}" class="accordion accordion-flush col-5 ms-3">
             <div class="accordion-item">
                 <h2 class="accordion-header">
@@ -41,18 +42,18 @@
                         <i class="fa-solid fa-note-sticky"></i> Notes
                     </button>
                 </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#activityNotes-{{ activity.pk }}">
                     <div class="accordion-body">
-                        <button class="modal-dyn-btn btn btn-outline-secondary border-0" data-activity-id="{{ activity.pk }}" data-content-type="note" data-bs-toggle="modal" data-bs-target="#activityModal"><i class="fa-solid fa-plus"></i> Add note</button>
-                        <div class="notesList">
-                        {% for note in activities.notes %}
-                            <div class="card">
-                                <div class="card-header justify-content-between align-items-start">
-                                    {{ note.created_at }}
-                                    <button class="btn btn-outline-secondary"><i class="fa-solid fa-pen-to-square"></i></button>
-                                </div>
+                        <button class="modal-dyn-btn btn btn-outline-secondary border-0 mb-3" data-activity-id="{{ activity.pk }}" data-content-type="note" data-bs-toggle="modal" data-bs-target="#activityModal"><i class="fa-solid fa-plus"></i> Add note</button>
+                        <div id="notesList" style="overflow: auto; max-height: 600px;">
+                        {% for note in activity.notes.all %}
+                            <div id="card-{{ note.pk }}" class="card mb-3">
                                 <div class="card-body">
-                                    {{ note.description | safe }}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5 class="card-title mb-0">{{ note.get_formatted_date }}</h5>
+                                        <button class="modal-dyn-btn btn btn-outline-secondary btn-sm border-0" data-activity-id="{{ activity.pk }}" data-instance-id="{{ note.pk }}" data-bs-toggle="modal" data-content-type="editNote" data-bs-target="#activityModal"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    </div>
+                                    <p class="card-text">{{ note.description | safe }}</p>
                                 </div>
                             </div>
                         {% endfor %}

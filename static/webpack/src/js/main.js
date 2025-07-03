@@ -103,10 +103,20 @@ window.addEventListener("DOMContentLoaded", () => {
         let contentTypes = {
             note: {
                 type: "note",
-                title: "Add notes",
+                title: "Add Note",
                 endpoint: new URL(document.URL).pathname + "add-note/",
                 activityId: null,
                 submitBtnText: "Add Note",
+                initEditor: true,
+            },
+            editNote: {
+                type: "editNote",
+                title: "Edit Note",
+                endpoint: new URL(document.URL).pathname + "add-note/",
+                activityId: null,
+                submitBtnText: "Save Note",
+                initEditor: true,
+                instanceId: null,
             }
         }
         for (let i = 0; i < modalDynBtns.length; i++) {
@@ -120,6 +130,9 @@ window.addEventListener("DOMContentLoaded", () => {
                 let modalSubmitBtn = modal.querySelector("#modalSubmitBtn");
                 let modalData = contentTypes[contentType];
                 modalData.activityId = modalDynBtn.dataset.activityId;
+                if (contentType === "editNote") {
+                    modalData["instanceId"] = modalDynBtn.dataset.instanceId;
+                }
                 // getting the html content
                 let res = await fetches.fetchModalData(modalData);
                 if (res.status === "error") {
@@ -139,16 +152,40 @@ window.addEventListener("DOMContentLoaded", () => {
                     modalSubmitBtn.innerText = modalData.submitBtnText;
                     // updating the modal
                     modalInstance.handleUpdate();
-                    // Re-initialize Prose editor
-                    if (window.djangoProse && typeof window.djangoProse.init === 'function') {
-                        window.djangoProse.init();
+
+                    if (contentType.initEditor) {
+                        // Re-initialize Prose editor
+                        if (window.djangoProse && typeof window.djangoProse.init === 'function') {
+                            window.djangoProse.init();
+                        }
                     }
 
-                    // adding and onclick function
-                    let noteData = {
-                        formId: form.id,
+                    let data;
+                    switch (contentType) {
+                        case "note":
+                            // adding and onclick function
+                            data = {
+                                notesListId: "notesList",
+                                formId: form.id,
+                                modalInstance: modalInstance,
+                                modal: modal,
+                                contentType: contentType,
+                            }
+                            modalSubmitBtn.addEventListener("click", async () => functions.addActivityNote(data));
+                            break;
+                        case "editNote":
+                            // adding and onclick function
+                            data = {
+                                notesListId: "notesList",
+                                formId: form.id,
+                                modalInstance: modalInstance,
+                                modal: modal,
+                                contentType: contentType,
+                                instanceId: modalData["instanceId"],
+                            }
+                            modalSubmitBtn.addEventListener("click", async () => functions.addActivityNote(data));
+                            break;
                     }
-                    modalSubmitBtn.addEventListener("click", async () => functions.addActivityNote(noteData))
                 }
             });
         }

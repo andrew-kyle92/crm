@@ -1,12 +1,12 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from crm.models import Task, Client, Note
+from crm.models import Activity, Client, Note, Policy
 
 
-class TaskForm(forms.ModelForm):
+class ActivityForm(forms.ModelForm):
     class Meta:
-        model = Task
+        model = Activity
         fields = '__all__'
         widgets = {
             'subject': forms.TextInput(attrs={'class': 'form-control'}),
@@ -32,7 +32,10 @@ class TaskForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(TaskForm, self).__init__(*args, **kwargs)
+        super(ActivityForm, self).__init__(*args, **kwargs)
+        client = kwargs.pop('instance')
+        policy_choices = client.get_policies()
+        self.fields['policy'].choices = policy_choices
 
         self.fieldsets = [
             {
@@ -44,7 +47,7 @@ class TaskForm(forms.ModelForm):
             {
                 "name": "Additional Information",
                 "fields": [
-                    ["priority", "status"], "activity_type"
+                    ["priority", "status"], ["activity_type", "policy"]
                 ],
             }
         ]
@@ -82,27 +85,27 @@ class CustomerForm(forms.ModelForm):
         }
 
         for visible in self.visible_fields():
-            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widgets.attrs['class'] = 'form-control'
             if visible.widget_type == "date":
-                visible.field.widget = forms.DateInput(attrs={"class": "form-control", "type": "date"})
+                visible.field.widgets = forms.DateInput(attrs={"class": "form-control", "type": "date"})
             elif visible.name == "phone" or visible.name == "secondary_phone" or visible.name == "other_phone":
-                visible.field.widget.attrs['class'] += ' phone'
+                visible.field.widgets.attrs['class'] += ' phone'
 
             if visible.name == "street_address":
-                visible.field.widget.attrs['placeholder'] = 'Street Address'
-                visible.field.widget.attrs['autocomplete'] = 'off'
+                visible.field.widgets.attrs['placeholder'] = 'Street Address'
+                visible.field.widgets.attrs['autocomplete'] = 'off'
             elif visible.name == "street_address_2":
-                visible.field.widget.attrs['placeholder'] = 'Apartment, unit, suite, or floor #'
-                visible.field.widget.attrs['autocomplete'] = 'off'
+                visible.field.widgets.attrs['placeholder'] = 'Apartment, unit, suite, or floor #'
+                visible.field.widgets.attrs['autocomplete'] = 'off'
             elif visible.name == "city":
-                visible.field.widget.attrs['placeholder'] = 'City'
-                visible.field.widget.attrs['autocomplete'] = 'off'
+                visible.field.widgets.attrs['placeholder'] = 'City'
+                visible.field.widgets.attrs['autocomplete'] = 'off'
             elif visible.name == "state":
-                visible.field.widget.attrs['placeholder'] = 'State'
-                visible.field.widget.attrs['autocomplete'] = 'off'
+                visible.field.widgets.attrs['placeholder'] = 'State'
+                visible.field.widgets.attrs['autocomplete'] = 'off'
             elif visible.name == "zip_code":
-                visible.field.widget.attrs['placeholder'] = 'Zip'
-                visible.field.widget.attrs['autocomplete'] = 'off'
+                visible.field.widgets.attrs['placeholder'] = 'Zip'
+                visible.field.widgets.attrs['autocomplete'] = 'off'
 
         self.fieldsets = [
             {
@@ -149,9 +152,54 @@ class NoteForm(forms.ModelForm):
         model = Note
         fields = "__all__"
         widgets = {
-            "task": forms.TextInput(attrs={"class": "form-control", "type": "text", "readonly": "readonly"}),
+            "activity": forms.TextInput(attrs={"class": "form-control", "type": "text", "readonly": "readonly"}),
             "created_at": forms.HiddenInput(),
         }
+
+
+class PolicyForm(forms.ModelForm):
+    class Meta:
+        model = Policy
+        fields = "__all__"
+        widgets = {
+            "client": forms.TextInput(attrs={"class": "form-control readonly", "readonly": "readonly"}),
+            "provider": forms.TextInput(attrs={"class": "form-control"}),
+            "policy_number": forms.TextInput(attrs={"class": "form-control"}),
+            "policy_type": forms.Select(attrs={"class": "form-select"}),
+            "start_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "end_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "premium_amount": forms.TextInput(attrs={"class": "form-control"}),
+            "status": forms.Select(attrs={"class": "form-select"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PolicyForm, self).__init__(*args, **kwargs)
+
+        self.fieldsets = [
+            {
+                "name": "Policy Details",
+                "fields": [
+                    ["client", "provider"],
+                    ["policy_number", "policy_type"],
+                    ["start_date", "end_date"],
+                    ["premium_amount", "status"]
+                ],
+            },
+        ]
+
+    def iter_fieldsets(self):
+        for fieldset in self.fieldsets:
+            f = {"name": fieldset["name"], "fields": []}
+            for field in fieldset["fields"]:
+                if type(field) is list:
+                    fields = []
+                    for subfield in field:
+                        fields.append(self[subfield])
+                    f["fields"].append(fields)
+                else:
+                    f["fields"].append(self[field])
+
+            yield f
 
 
 class LoginForm(AuthenticationForm):

@@ -28,6 +28,10 @@ class Client(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+    def get_policies(self):
+        policies = ", ".join([policy.__str__() for policy in self.policies.all()])
+        return policies
+
     class Meta:
         verbose_name = 'Client'
         verbose_name_plural = 'Clients'
@@ -36,10 +40,10 @@ class Client(models.Model):
 
 class Policy(models.Model):
     POLICY_TYPES = [
-        ('life', 'Life Insurance'),
-        ('auto', 'Auto Insurance'),
-        ('home', 'Home Insurance'),
-        ('health', 'Health Insurance'),
+        ('life', 'Life'),
+        ('auto', 'Auto'),
+        ('home', 'Home'),
+        ('health', 'Health'),
     ]
 
     STATUS_CHOICES = [
@@ -54,14 +58,23 @@ class Policy(models.Model):
     provider = models.CharField(max_length=100)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    premium_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    premium_amount = models.CharField(max_length=10, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, null=True, blank=True)
 
+    def get_policy_type(self):
+        policy_types = {
+            'life': 'Life',
+            'auto': 'Auto',
+            'home': 'Home',
+            'health': 'Health',
+        }
+        return policy_types[self.policy_type]
+
     def __str__(self):
-        return self.policy_number
+        return f"{self.get_policy_type()} ({self.policy_number})"
 
 
-class Task(models.Model):
+class Activity(models.Model):
     ACTIVITY_TYPES = [
         ('call', 'Call'),
         ('email', 'Email'),
@@ -88,7 +101,7 @@ class Task(models.Model):
     completed_date = models.DateField(blank=True, null=True)
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium', blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', blank=True, null=True)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='clients', blank=True, null=True)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='activities', blank=True, null=True)
     policy = models.ForeignKey(Policy, on_delete=models.DO_NOTHING, related_name='policies', blank=True, null=True)
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES, blank=True, null=True)
     created_at = models.DateField(auto_now_add=True)
@@ -96,8 +109,14 @@ class Task(models.Model):
     def __str__(self):
         return self.subject
 
+    def get_status(self):
+        if self.status == 'in_progress':
+            return 'In Progress'
+        else:
+            return 'Completed'
+
     def get_fieldsets(self):
-        """Returns a dictionary of fieldsets for this task."""
+        """Returns a dictionary of fieldsets for this activity."""
         return [
             {
                 "title": "Task Details",
@@ -118,7 +137,7 @@ class Task(models.Model):
                 "fields": [
                     [
                         {"label": "Priority", "field": self.priority},
-                        {"label": "Status", "field": self.status}
+                        {"label": "Status", "field": self.get_status()}
                     ],
                     {"label": "Activity Type", "field": self.activity_type},
                 ]
@@ -130,9 +149,12 @@ class Task(models.Model):
 
 
 class Note(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='notes')
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='notes')
     description = RichTextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_formatted_date(self):
+        return self.created_at.strftime("%B %d, %Y at %I:%M%p")
 
     class Meta:
         ordering = ['-created_at']

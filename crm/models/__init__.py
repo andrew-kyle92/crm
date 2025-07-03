@@ -1,2 +1,8 @@
 from .auth_models import CustomUser
-from .models import *
+from .models import (
+    Client,
+    Policy,
+    Activity,
+    Note,
+    UserProfile
+)

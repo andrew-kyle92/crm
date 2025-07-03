@@ -15,11 +15,11 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, CreateView, UpdateView
 
-from .forms import TaskForm, LoginForm, CustomerForm, NoteForm
-from .models import Task, Client, Note
-from .utils import *
+from crm.forms import ActivityForm, LoginForm, CustomerForm, NoteForm, PolicyForm
+from crm.models import Activity, Client, Note, Policy
+from crm.utils import *
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -29,7 +29,7 @@ class IndexView(LoginRequiredMixin, View):
     template_name = "crm/index.html"
 
     def get(self, request):
-        all_activities = Task.objects.filter(assigned_to=request.user).order_by('-due_date')
+        all_activities = Activity.objects.filter(assigned_to=request.user).order_by('-due_date')
         todays_activities = all_activities.filter(due_date__exact=date.today(), assigned_to=request.user).order_by('-due_date')
         customers = Client.objects.all()
         context = {
@@ -57,7 +57,7 @@ class ActivitiesView(LoginRequiredMixin, TemplateView):
         if params is not None and len(params.keys()) > 0:
             activities = url_filters.get_activities(kwargs.get("params"))
         else:
-            activities = Task.objects.all().order_by('-due_date')
+            activities = Activity.objects.all().order_by('-due_date')
         paginator = Paginator(activities, 10)
         context["paginator"] = paginator
         context["page"] = paginator.get_page(kwargs.get("page"))
@@ -88,26 +88,45 @@ class AddActivityView(LoginRequiredMixin, View):
     redirect_field_name = "next"
     title = "Add Activity"
     template_name = "crm/forms/activity_form.html"
+    action = "add"
 
     def get(self, request):
         customer_id = request.GET.get("pk", None)
+        customer = None
         if customer_id:
             customer = Client.objects.get(pk=customer_id)
-            form = TaskForm(initial={"assigned_to": request.user, "client": customer})
+            form = ActivityForm(initial={"assigned_to": request.user, "client": customer}, instance=customer)
         else:
-            form = TaskForm(initial={"assigned_to": request.user})
+            form = ActivityForm(initial={"assigned_to": request.user})
         context = {
             "title": self.title,
             "form": form,
+            "customer": customer,
+            "action": self.action,
         }
         return render(request, self.template_name, context)
 
     @staticmethod
     def post(request):
-        form = TaskForm(request.POST, request.FILES)
+        form = ActivityForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
         return redirect('activities')
+
+
+class EditActivityView(LoginRequiredMixin, UpdateView):
+    login_url = reverse_lazy("login")
+    redirect_field_name = "next"
+    template_name = "crm/forms/activity_form.html"
+    form_class = ActivityForm
+    model = Activity
+    action = "edit"
+
+    def get_context_data(self, **kwargs):
+        context = super(EditActivityView, self).get_context_data(**kwargs)
+        context["action"] = self.action
+        context["title"] = "Edit Activity"
+        return context
 
 
 class ActivityView(LoginRequiredMixin, View):
@@ -117,7 +136,7 @@ class ActivityView(LoginRequiredMixin, View):
     title = ""
 
     def get(self, request, pk):
-        activity = Task.objects.get(pk=pk)
+        activity = Activity.objects.get(pk=pk)
         self.title = activity.subject[0:50] + " | Activity"
         context = {
             "title": self.title,
@@ -146,12 +165,16 @@ class AddCustomerView(LoginRequiredMixin, View):
     redirect_field_name = "next"
     title = "Add Customer"
     template_name = 'crm/forms/customer_form.html'
+    map_api_key = settings.MAP_API_KEY
+    action = "add"
 
     def get(self, request):
         form = CustomerForm()
         context = {
             "title": self.title,
             "form": form,
+            "map_api_key": self.map_api_key,
+            "action": self.action,
         }
         return render(request, self.template_name, context)
 
@@ -164,6 +187,8 @@ class AddCustomerView(LoginRequiredMixin, View):
             context = {
                 "form": form,
                 "title": self.title,
+                "map_api_key": self.map_api_key,
+                "action": self.action,
             }
             return render(request, self.template_name, context)
 
@@ -174,6 +199,7 @@ class EditCustomerView(LoginRequiredMixin, View):
     title = "Edit Customer"
     template_name = 'crm/forms/customer_form.html'
     map_api_key = settings.MAP_API_KEY
+    action = "edit"
 
     def get(self, request, pk, *args, **kwargs):
         customer = Client.objects.get(pk=pk)
@@ -181,7 +207,8 @@ class EditCustomerView(LoginRequiredMixin, View):
         context = {
             "title": self.title,
             "form": form,
-            "map_api_key": self.map_api_key
+            "map_api_key": self.map_api_key,
+            "action": self.action,
         }
         return render(request, self.template_name, context)
 
@@ -195,6 +222,8 @@ class EditCustomerView(LoginRequiredMixin, View):
             context = {
                 "form": form,
                 "title": self.title,
+                "map_api_key": self.map_api_key,
+                "action": self.action,
             }
             return render(request, self.template_name, context)
 
@@ -222,7 +251,7 @@ class AddNoteView(LoginRequiredMixin, View):
     template_name = 'crm/forms/notes_form.html'
 
     def get(self, request, pk, *args, **kwargs):
-        task = Task.objects.get(pk=pk)
+        task = Activity.objects.get(pk=pk)
         form = NoteForm(initial={"assigned_to": request.user, "task": task})
         context = {
             "title": self.title,
@@ -232,16 +261,45 @@ class AddNoteView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
     def post(self, request, pk, *args, **kwargs):
-        form = TaskForm(request.POST, request.FILES)
+        form = NoteForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect(reverse_lazy('task', kwargs={'pk': pk}))
         else:
+            activity = Activity.objects.get(pk=form.cleaned_data["task"].pk)
             context = {
                 "form": form,
                 "title": self.title,
+                "activity": activity,
             }
             return render(request, self.template_name, context)
+
+
+class AddPolicyView(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy("login")
+    success_url = reverse_lazy("crm")
+    template_name = "crm/forms/add_policy.html"
+    form_class = PolicyForm
+    model = Policy
+    title = "Add Policy"
+    action = "add"
+    initial = {}
+
+    def get_context_data(self, **kwargs):
+        context = super(AddPolicyView, self).get_context_data(**kwargs)
+        context["title"] = self.title
+        context["action"] = self.action
+        context["customer"] = Client.objects.get(pk=self.kwargs["pk"])
+        return context
+
+    def get(self, request, *args, **kwargs):
+        kwargs["pk"] = kwargs.get("pk")
+        return super(AddPolicyView, self).get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(AddPolicyView, self).get_form_kwargs()
+        kwargs["initial"]["client"] = Client.objects.get(pk=self.kwargs["pk"])
+        return kwargs
 
 
 # ########## Authentication Views ##########
@@ -267,75 +325,3 @@ class UserLoginView(LoginView):
 def user_logout(request):
     logout(request)
     return redirect("index")
-
-
-# ********** Fetch requests **********
-def fetch_activity(request):
-    try:
-        # getting the activity ID from the payload
-        activity_id = request.GET.get("activity_id", None)
-        if not activity_id:
-            raise Exception("No activity id")
-        activity = Task.objects.get(pk=activity_id)  # getting the activity
-        activity_notes = Note.objects.filter(task=activity)
-        activity_html = render_to_string(
-            "crm/activity.html",
-            {
-                "activity": activity,
-                "activity_notes": activity_notes,
-            }
-        )
-        context = {
-            "status": "success",
-            "activity": activity_html,
-        }
-        return JsonResponse(context, safe=False)
-    except Task.DoesNotExist:
-        context = {
-            "status": "error",
-            "message": "No activity found",
-        }
-        return JsonResponse(json.dumps(context), safe=False)
-
-
-def fetch_users(request):
-    user_query = request.GET.get("q", None)
-    if user_query is not None:
-        users = get_users_list(user_query)
-        return JsonResponse(users, safe=False)
-    else:
-        return JsonResponse({"status": "error", "message": "No users found"}, Safe=True)
-
-
-def fetch_modal_data(request):
-    modal_type = request.GET.get("type", None)
-    if modal_type is not None:
-        if modal_type == "note":
-            activity_id = request.GET.get("activityId", None)
-            activity = Task.objects.get(pk=activity_id)
-            template = "crm/forms/notes_form.html"
-            form = NoteForm(initial={"assigned_to": request.user, "task": activity})
-            form_context = {
-                "activity": activity,
-                "form": form,
-            }
-            modal_body_html = render_to_string(template, form_context)
-            res_context = {
-                "status": "success",
-                "html": modal_body_html,
-            }
-            return JsonResponse(res_context, safe=False)
-        else:
-            return JsonResponse({"status": "error", "message": "No modal found"}, safe=False)
-    else:
-        return JsonResponse({"status": "error", "message": "No modal found"}, safe=False)
-
-
-def fetch_submit_form(request):
-    form = NoteForm(request.POST)
-    if form.is_valid():
-        instance = form.save()
-        print(instance)
-        return JsonResponse({"formData": instance.__dict__}, safe=False)
-    else:
-        return JsonResponse({"formData": form.errors}, safe=False)
