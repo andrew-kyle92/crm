@@ -19,10 +19,10 @@
     <hr>
     <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle link-dark" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="" alt="" width="32" height="32" class="rounded-circle me-2"> <strong>{{ request.user }}</strong>
+            <img src="{% get_media_prefix %}{{ request.user.user_settings.profile_picture }}" alt="profile_picture" width="32" height="32" class="rounded-circle me-2"> <strong>{{ request.user }}</strong>
         </a>
         <ul class="dropdown-menu text-small shadow" style="">
-            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><a class="dropdown-item" href="{% url 'settings' pk=request.user.pk %}">Settings</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
         </ul>

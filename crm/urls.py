@@ -17,6 +17,8 @@ urlpatterns = [
     path("customers/view/<int:customer_pk>/activity/add/", AddActivityView.as_view(), name="new-activity"),
     path("customers/view/<int:customer_pk>/activity/<int:activity_pk>/edit/", EditActivityView.as_view(), name="edit-activity"),
     path("customers/view/<int:customer_pk>/activity/<int:activity_pk>/add-note/", EditActivityView.as_view(), name="add-note"),
+    path("profile/<int:pk>/", views.SettingsView.as_view(), name="settings"),
+    path("profile/<int:pk>/edit/", views.EditSettingsView.as_view(), name="edit-settings"),
     # authentication_views
     path('login/', views.UserLoginView.as_view(), name='login'),
     path('logout/', views.user_logout, name='logout'),
@@ -30,3 +32,4 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

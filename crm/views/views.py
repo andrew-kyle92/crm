@@ -1,7 +1,7 @@
 import json
 from datetime import date
 
-from django.conf import settings
+from django.conf import settings, Settings
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -17,8 +17,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import TemplateView, CreateView, UpdateView
 
-from crm.forms import ActivityForm, LoginForm, CustomerForm, NoteForm, PolicyForm
-from crm.models import Activity, Client, Note, Policy
+from crm.forms import ActivityForm, LoginForm, CustomerForm, NoteForm, PolicyForm, SettingsForm
+from crm.models import Activity, Client, Note, Policy, UserSettings
 from crm.utils import *
 
 
@@ -29,8 +29,8 @@ class IndexView(LoginRequiredMixin, View):
     template_name = "crm/index.html"
 
     def get(self, request):
-        all_activities = Activity.objects.filter(assigned_to=request.user).order_by('-due_date')
-        todays_activities = all_activities.filter(due_date__exact=date.today(), assigned_to=request.user).order_by('-due_date')
+        all_activities = Activity.objects.all().order_by('-due_date')
+        todays_activities = all_activities.filter(due_date__exact=date.today()).order_by('-due_date')
         customers = Client.objects.all()
         context = {
             "title": self.title,
@@ -313,6 +313,38 @@ class AddPolicyView(LoginRequiredMixin, CreateView):
         kwargs = super(AddPolicyView, self).get_form_kwargs()
         kwargs["initial"]["client"] = Client.objects.get(pk=self.kwargs["customer_pk"])
         return kwargs
+
+
+class SettingsView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("login")
+    template_name = "crm/settings.html"
+    title = "Settings"
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        user_settings = UserSettings.objects.get(user=user)
+        context = {
+            "settings": user_settings,
+            "title": self.title,
+        }
+        return render(request, self.template_name, context)
+
+
+class EditSettingsView(LoginRequiredMixin, UpdateView):
+    login_url = reverse_lazy("login")
+    title = "Edit Settings"
+    template_name = "crm/forms/settings_form.html"
+    form_class = SettingsForm
+    model = UserSettings
+
+    def get_context_data(self, **kwargs):
+        context = super(EditSettingsView, self).get_context_data(**kwargs)
+        context["title"] = self.title
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("settings", kwargs={"pk": self.request.user.pk})
 
 
 # ########## Authentication Views ##########

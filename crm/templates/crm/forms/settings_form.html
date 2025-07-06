@@ -1,0 +1,36 @@
+{% extends 'theme/base.html' %}
+
+{% block content %}
+	<div class="d-flex justify-content-center">
+        <h5>Edit settings</h5>
+    </div>
+
+    <form id="notesForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <p class="error">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+
+        {% for field in form %}
+            {% if not field.is_hidden %}
+            <div class="form-group mb-3">
+                <label for="id_{{ field.name }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="errors">
+                    {% for error in field.errors %}
+                        <span class="error">{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        <button id="submitBtn" type="submit" class="btn btn-primary">Submit</button>
+        <a role="button" class="btn btn-secondary" href="{% url 'settings' pk=request.user.pk %}">Cancel</a>
+    </form>
+{% endblock %}

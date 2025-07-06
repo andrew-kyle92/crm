@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from crm.models import Activity, Client, Note, Policy
+from crm.models import Activity, Client, Note, Policy, UserSettings
 
 
 class ActivityForm(forms.ModelForm):
@@ -202,6 +202,20 @@ class PolicyForm(forms.ModelForm):
                     f["fields"].append(self[field])
 
             yield f
+
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        model = UserSettings
+        exclude = ["user", "created_at", "receive_notifications"]
+        fields = ["phone_number", "date_of_birth", "profile_picture", "bio", "theme_preference"]
+        widgets = {
+            "phone_number": forms.TextInput(attrs={"class": "form-control phone", "autofocus": "autofocus"}),
+            "date_of_birth": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "profile_picture": forms.FileInput(attrs={"class": "form-control"}),
+            "bio": forms.Textarea(attrs={"class": "form-control"}),
+            "theme_preference": forms.Select(attrs={"class": "form-select"}),
+        }
 
 
 class LoginForm(AuthenticationForm):

@@ -163,13 +163,18 @@ class Note(models.Model):
         ordering = ['-created_at']
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+def image_upload(instance, filename):
+    # will upload the image to /MEDIA_ROOT/user_<id>/<filename>
+    return f'profiles/{instance.user.pk}/profile_images/{filename}'
+
+
+class UserSettings(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_settings")
 
     # Common additional fields
     phone_number = models.CharField(max_length=15, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True, default='default_img.png')
+    profile_picture = models.ImageField(upload_to=image_upload, null=True, blank=True, default='/default_img.png')
     bio = models.TextField(blank=True)
 
     # Preferences or settings
@@ -192,6 +197,6 @@ class UserProfile(models.Model):
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
-        UserProfile.objects.create(user=instance)
+        UserSettings.objects.create(user=instance)
     else:
-        instance.userprofile.save()
+        instance.user_settings.save()

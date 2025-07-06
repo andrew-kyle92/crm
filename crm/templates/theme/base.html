@@ -11,7 +11,7 @@
 
     {% block extra_head %}{% endblock %}
 </head>
-<body class="{% block body_class %}d-flex flex-nowrap{% endblock %} {% if request.user.is_authenticated %}{{ request.user.userprofile.theme_preference }}-theme{% else %}auto-theme{% endif %}">
+<body class="{% block body_class %}d-flex flex-nowrap{% endblock %} {% if request.user.is_authenticated %}{{ request.user.user_settings.theme_preference }}-theme{% else %}auto-theme{% endif %}">
 {#<body class="{% block body_class %}d-flex flex-nowrap{% endblock %}">#}
     {% block sidebar %}
         <!-- Sidebar -->
