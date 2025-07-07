@@ -149,6 +149,8 @@ class Activity(models.Model):
 
     class Meta:
         ordering = ['-due_date']
+        verbose_name = "Activity"
+        verbose_name_plural = "Activities"
 
 
 class Note(models.Model):
