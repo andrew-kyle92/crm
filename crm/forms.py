@@ -5,7 +5,7 @@ from crm.models import Activity, Client, Note, Policy, UserSettings
 
 
 class ActivityForm(forms.ModelForm):
-    policy = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-select'}))
+    policy = forms.ModelChoiceField(queryset=None, widget=forms.Select(attrs={'class': 'form-select'}), required=False)
 
     class Meta:
         model = Activity

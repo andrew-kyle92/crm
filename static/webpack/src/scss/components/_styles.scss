@@ -149,3 +149,10 @@ header {
   background: var(--gray-dark);
   color: var(--gray-light);
 }
+
+/* === Tabs === */
+.tab-span:hover {
+  background-color: (--gray-light);
+  color: (--gray-dark);
+  cursor: pointer;
+}

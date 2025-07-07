@@ -6,10 +6,10 @@
   --accent: #ffca28;
   --c-error: #ef5350;
 
-  --gray-dark: #eaeaea;
-  --gray-darker: #ffffff;
-  --gray-light: #1a1b1c;
-  --white: #232527;
+  --gray-dark: #232527;
+  --gray-darker: #1a1b1c;
+  --gray-light: #eaeaea;
+  --white: #ffffff;
 
   --icon-color: #80cbc4;
   --hover-bg: #2c2c2c;
@@ -19,14 +19,14 @@
   --error-bg: #4c1c1c;
   --spinner-border: var(--primary);
 
-  --bs-body-bg: var(--gray-light);
+  --bs-body-bg: var(--gray-dark);
   --bs-header-bg: #1f2b36;
   --bs-sidebar-bg: #151617;
   --bs-sidebar-active-bg: var(--primary);
-  --bs-body-color: var(--gray-dark);
+  --bs-body-color: var(--gray-light);
   --bs-border-color: #333;
-  --bs-card-bg: var(--white);
-  --bs-card-color: var(--gray-darker);
+  --bs-card-bg: var(--gray-darker);
+  --bs-card-color: var(--gray-light);
   --bs-link-color: var(--primary);
   --bs-link-color-light: var(--primary-light);
 }
@@ -96,8 +96,8 @@
   .card,
   .panel,
   .box {
-    background-color: var(--bs-card-bg);
-    color: var(--bs-card-color);
+    background-color: var(--gray-darker);
+    color: var(--gray-light);
     border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
     border-radius: 6px;
@@ -108,11 +108,15 @@
     color: var(--bs-card-color);
   }
 
+  .card-body {
+    background-color: var(--gray-dark);
+  }
+
   .card-header,
   .section-title,
   .card-title {
     background: linear-gradient(to right, rgba(0, 172, 193, 0.15), rgba(0, 172, 193, 0));
-    color: var(--gray-darker);
+    color: var(--gray-light);
     font-weight: 600;
     padding: 0.5rem 1rem;
     border-bottom: 1px solid var(--bs-border-color);
@@ -223,12 +227,16 @@
     color: #bbb !important;
   }
 
+  .nav-link.active {
+    color: var(--gray-light);
+  }
+
   /* Forms */
   input,
   textarea,
   select {
-    background-color: var(--bs-card-bg);
-    color: var(--bs-body-color);
+    background-color: var(--gray-dark);
+    color: var(--gray-light);
     border: 1px solid var(--bs-border-color);
   }
 
@@ -240,6 +248,8 @@
   select:focus,
   input:focus,
   textarea:focus {
+    background-color: var(--placeholder-color);
+    color: var(--gray-dark);
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 0.2rem rgba(0, 172, 193, 0.25);
@@ -252,8 +262,8 @@
 
   /* Modals */
   .modal-content {
-    background-color: var(--bs-card-bg);
-    color: var(--bs-card-color);
+    background-color: var(--gray-darker);
+    color: var(--gray-light);
     border: 1px solid var(--bs-border-color);
   }
 
@@ -299,11 +309,34 @@
     text-decoration: underline;
   }
 
+  .trix-content,
   .ql-toolbar,
   .editor-toolbar {
-    background-color: #2a2a2a;
+    background-color: var(--gray-dark);
     border-color: var(--bs-border-color);
-    color: var(--bs-card-color);
+    color: var(--gray-light);
+  }
+
+  .trix-content:focus {
+    background-color: var(--gray-light);
+    color: var(--gray-dark);
+  }
+
+  .bg-darker {
+    background-color: var(--gray-darker);
+    color: var(--gray-light);
+  }
+
+  .bg-dark {
+    background-color: var(--gray-dark);
+    color: var(--gray-light)
+  }
+
+  /* === Tabs === */
+  .tab-span:hover {
+    background-color: var(--gray-light);
+    color: var(--gray-dark);
+    cursor: pointer;
   }
 }
 

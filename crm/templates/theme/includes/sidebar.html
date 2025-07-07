@@ -1,11 +1,11 @@
 {% load static crm_extras %}
-<div class=".sidebar d-flex flex-column flex-shrink-0 p-3 border-end" style="width: 280px; height: 100vh;">
+<div class="sidebar d-flex flex-column flex-shrink-0 p-3 border-end" style="width: 280px; height: 100vh;">
     <a href="/" class="d-flex align-items-center justify-content-center navbar-brand">
         <img src="{% static 'img/logo.png' %}" alt="site logo" height="150" width="150">
     </a>
     <hr>
     {% if request.user.is_authenticated %}
-    <ul class="nav nav-pills flex-column mb-auto text-dark">
+    <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
             <a href="{% url 'index' %}" class="nav-link {% if request.path|current_url:"index" %}active{% else %}link-dark{% endif %}" aria-current="page"><i class="fa-solid fa-house bi pe-none me-2"></i>Home</a>
         </li>

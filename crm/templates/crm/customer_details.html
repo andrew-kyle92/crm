@@ -4,7 +4,7 @@
 {% block content %}
     <div class="d-flex justify-content-between">
         <div id="middleContent" class="col-8">
-            <div id="customerInfo" class="col border rounded-2 me-3 p-0">
+            <div id="customerInfo" class="col border rounded-2 me-3 p-0 bg-darker">
                 <div class="d-flex flex-row container-fluid bg-secondary-subtle">
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-city fa-icon"></i></h1>
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
@@ -32,7 +32,7 @@
                 </div>
             </div>
 
-            <div id="policiesDiv" class="col border rounded-2 me-3 p-0 mt-5">
+            <div id="policiesDiv" class="col border rounded-2 me-3 p-0 mt-5 bg-darker">
                 <div class="d-flex flex-row container-fluid bg-secondary-subtle">
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-file fa-icon"></i></h1>
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
@@ -44,7 +44,7 @@
                     {% for policy in customer.policies.all %}
                         {% if activity.policy != "completed" %}
 {#                        <div class="card mb-2 c-link" onclick="window.location='{% url 'activity' pk=activity.pk %}'">#}
-                        <div class="row mb-2 c-link p-2 mx-0 border rounded-2">
+                        <div class="row mb-2 c-link p-2 mx-0 border rounded-2 bg-dark">
                             <div class="col">
                                 <p class="mb-0">Type</p>
                                 <p class="mb-0">{{ policy.policy_type | title }}</p>
@@ -67,7 +67,7 @@
                 </div>
             </div>
 
-            <div id="activitiesDiv" class="col border rounded-2 me-3 p-0 mt-5">
+            <div id="activitiesDiv" class="col border rounded-2 me-3 p-0 mt-5 bg-darker">
                 <div class="d-flex flex-row container-fluid bg-secondary-subtle">
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-clipboard fa-icon"></i></h1>
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
@@ -76,9 +76,20 @@
                     </div>
                 </div>
                 <div class="px-2 mt-3" style="overflow: auto; max-height: 450px; height: auto">
+                    {# Nav tabs #}
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <span class="nav-link active tab-span" data-content="in_progress" data-target="in_progress_content">In Progress</span>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-link tab-span" data-content="completed" data-target="completed_content">Completed</span>
+                        </li>
+                    </ul>
+                    {# In progress activities #}
+                    <div id="in_progress_content" data-expanded="true">
                     {% for activity in customer.activities.all %}
                         {% if activity.status != "completed" %}
-                        <div class="card mb-2 c-link" onclick="window.location='{% url 'activity' customer_pk=customer.pk activity_pk=activity.pk %}'">
+                        <div class="card mb-2 c-link bg-dark" onclick="window.location='{% url 'activity' customer_pk=customer.pk activity_pk=activity.pk %}'">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h5 class="card-title mb-0">{{ activity.status | unslugify | title }}</h5>
@@ -89,11 +100,28 @@
                         </div>
                         {% endif %}
                     {% endfor %}
+                    </div>
+                    {# Completed activities #}
+                    <div id="completed_content" data-expanded="false" hidden>
+                    {% for activity in customer.activities.all %}
+                        {% if activity.status == "completed" %}
+                        <div class="card mb-2 c-link bg-dark" onclick="window.location='{% url 'activity' customer_pk=customer.pk activity_pk=activity.pk %}'">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title mb-0">{{ activity.status | unslugify | title }}</h5>
+                                    <h6 class="card-subtitle mt-0">{{ activity.due_date }}</h6>
+                                </div>
+                                <p class="card-text">{{ activity.subject | truncatechars:100}}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
         <div id="rightContent" class="col-4">
-            <div id="contactInfo" class="border rounded-2 me-3 p-0 mb-3">
+            <div id="contactInfo" class="border rounded-2 me-3 p-0 mb-3 bg-darker">
                 <div class="d-flex flex-row container-fluid bg-secondary-subtle align-items-center">
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-address-card fa-icon"></i></h1>
                     <p class="mb-0 fs-4">Contact Card</p>
@@ -115,7 +143,7 @@
                     </div>
                 </div>
             </div>
-            <div id="customerNotes" class="border rounded-2 me-3 p-0">
+            <div id="customerNotes" class="border rounded-2 me-3 p-0 bg-darker">
                 <div class="d-flex flex-row container-fluid bg-secondary-subtle align-items-center">
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-note-sticky fa-icon"></i></h1>
                     <p class="mb-0 fs-4">Customer Notes</p>

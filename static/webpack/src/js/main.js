@@ -190,4 +190,33 @@ window.addEventListener("DOMContentLoaded", () => {
             });
         }
     }
+
+    // tabs toggling logic
+    let tabs = document.querySelectorAll(".tab-span");
+    if (tabs.length > 0) {
+        for (let i = 0; i < tabs.length; i++) {
+            let tab = tabs[i];
+            tab.addEventListener("click", () => {
+                // tab vars
+                let tabTarget = document.getElementById(tab.dataset.target);
+                // un-hiding the tab if not already unhidden
+                if (tabTarget.dataset.expanded !== "true") {
+                    tab.classList.add("active");
+                    tabTarget.classList.add("true");
+                    tabTarget.hidden = false;
+                }
+
+                // hiding all other tabs
+                let tabsList = Array.from(tabs);
+                tabsList.forEach(t => {
+                    if (t !== tab && t.classList.contains("active")) {
+                        let tTarget = document.getElementById(t.dataset.target);
+                        tTarget.dataset.expanded = "false";
+                        tTarget.hidden = true;
+                        t.classList.remove("active");
+                    }
+                });
+            });
+        }
+    }
 });

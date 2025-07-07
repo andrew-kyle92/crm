@@ -143,7 +143,7 @@ class EditActivityView(LoginRequiredMixin, UpdateView):
         return kwargs
 
     def get_success_url(self):
-        return reverse_lazy("activity", kwargs={"pk": self.object.pk})
+        return reverse_lazy("activity", kwargs={"activity_pk": self.object.pk, "customer_pk": self.object.client.pk})
 
 
 class ActivityView(LoginRequiredMixin, View):
