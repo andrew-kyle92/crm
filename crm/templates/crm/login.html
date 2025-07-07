@@ -7,7 +7,7 @@
 {% block body_class %}d-flex align-items-center py-4 bg-dark{% endblock %}
 
 {% block outer_block %}
-    <div class="form-signin w-25 m-auto border rounded-2 p-3 bg-light">
+    <div class="form-signin w-25 m-auto border rounded-2 p-3">
 {#  action="{% url 'login' %}?next={{ next }}"  #}
         <form method="post">
             {% csrf_token %}
