@@ -92,7 +92,7 @@ class AddActivityView(LoginRequiredMixin, View):
 
     def get(self, request, customer_pk):
         customer = Client.objects.get(pk=customer_pk)
-        form = ActivityForm(initial={"assigned_to": request.user, "client": customer}, instance=customer)
+        form = ActivityForm(initial={"assigned_to": request.user, "client": customer}, customer_instance=customer)
         context = {
             "title": self.title,
             "form": form,

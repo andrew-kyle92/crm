@@ -64,6 +64,8 @@ function removeDropDownDiv(parent, elId) {
     let el = document.getElementById(elId);
     if (el) {
         parent.removeChild(el)
+        removeListener("keydown", searchInput);
+        removeListener("focusout", searchInput);
     }
 }
 
@@ -112,6 +114,8 @@ const keyDownFunction = (ev, refList = null) => {
             break;
         case "Escape":
             removeDropDownDiv(searchInputDiv, usersDiv.id);
+            ev.target.value = "";
+            ev.target.blur();
             break;
         case "Enter":
             let activeItem = usersDiv.querySelector(".active-item");
@@ -127,6 +131,9 @@ function focusOutFunction() {
     setTimeout(() => {
         removeDropDownDiv(searchInputDiv, usersDiv.id);
     }, 250);
+    searchInput.value = "";
+    removeListener("keydown", searchInput);
+    removeListener("focusout", searchInput);
 }
 
 function clickFunction(ev) {

@@ -65,8 +65,8 @@
 
 /* === Text Colors === */
 .text-bg-dark {
-  background-color: var(--gray-dark);
-  color: var(--white);
+  background-color: var(--primary-dark) !important;
+  color: var(--white) !important;
 }
 
 .text-white {
