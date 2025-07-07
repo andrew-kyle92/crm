@@ -156,3 +156,8 @@ header {
   color: (--gray-dark);
   cursor: pointer;
 }
+
+/* === Form Signup === */
+.form-signin {
+  background-color: var(--bs-body-bg);
+}

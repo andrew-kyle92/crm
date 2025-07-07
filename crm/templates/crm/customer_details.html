@@ -44,7 +44,7 @@
                     {% for policy in customer.policies.all %}
                         {% if activity.policy != "completed" %}
 {#                        <div class="card mb-2 c-link" onclick="window.location='{% url 'activity' pk=activity.pk %}'">#}
-                        <div class="row mb-2 c-link p-2 mx-0 border rounded-2 bg-dark">
+                        <div class="row mb-2 c-link p-2 mx-0 border rounded-2">
                             <div class="col">
                                 <p class="mb-0">Type</p>
                                 <p class="mb-0">{{ policy.policy_type | title }}</p>
@@ -89,7 +89,7 @@
                     <div id="in_progress_content" data-expanded="true">
                     {% for activity in customer.activities.all %}
                         {% if activity.status != "completed" %}
-                        <div class="card mb-2 c-link bg-dark" onclick="window.location='{% url 'activity' customer_pk=customer.pk activity_pk=activity.pk %}'">
+                        <div class="card mb-2 c-link" onclick="window.location='{% url 'activity' customer_pk=customer.pk activity_pk=activity.pk %}'">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h5 class="card-title mb-0">{{ activity.status | unslugify | title }}</h5>
@@ -105,7 +105,7 @@
                     <div id="completed_content" data-expanded="false" hidden>
                     {% for activity in customer.activities.all %}
                         {% if activity.status == "completed" %}
-                        <div class="card mb-2 c-link bg-dark" onclick="window.location='{% url 'activity' customer_pk=customer.pk activity_pk=activity.pk %}'">
+                        <div class="card mb-2 c-link" onclick="window.location='{% url 'activity' customer_pk=customer.pk activity_pk=activity.pk %}'">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h5 class="card-title mb-0">{{ activity.status | unslugify | title }}</h5>

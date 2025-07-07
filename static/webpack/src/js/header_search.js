@@ -10,48 +10,50 @@ let usersDiv;
 let activeTimeout;
 // relating to the dropdown list
 let currentItem;
-searchInput.addEventListener("input",  () => {
-    clearTimeout(activeTimeout)
-    activeTimeout = setTimeout(async () => {
-        let q = searchInput.value;
-        if (q !== "") {
-            let res = await fetches.fetchUsers(q);
-            if (res.error) {
-                console.log(res.message);
-            } else {
-                if (res.length > 0) {
-                    if (usersDivActive === false) {
-                        // created the list div
-                        createDropDownDiv(searchInputDiv);
-                        usersDivActive = true;
-                    } else {
-                        // removing all user suggestions from old search
-                        removeDropDownChildren(usersDiv);
-                    }
+if (searchInput) {
+    searchInput.addEventListener("input", () => {
+        clearTimeout(activeTimeout)
+        activeTimeout = setTimeout(async () => {
+            let q = searchInput.value;
+            if (q !== "") {
+                let res = await fetches.fetchUsers(q);
+                if (res.error) {
+                    console.log(res.message);
+                } else {
+                    if (res.length > 0) {
+                        if (usersDivActive === false) {
+                            // created the list div
+                            createDropDownDiv(searchInputDiv);
+                            usersDivActive = true;
+                        } else {
+                            // removing all user suggestions from old search
+                            removeDropDownChildren(usersDiv);
+                        }
 
-                    for (let i = 0; i < res.length; i++) {
-                        let user = res[i];
-                        // creating each list item
-                        let span = document.createElement("span");
-                        span.className = "user-dropdown-item";
-                        span.dataset.userPk = user["id"];
-                        span.innerText = `${user["firstName"]} ${user["lastName"]}`;
-                        addListener("mouseup", span);
-                        usersDiv.appendChild(span);
-                    }
+                        for (let i = 0; i < res.length; i++) {
+                            let user = res[i];
+                            // creating each list item
+                            let span = document.createElement("span");
+                            span.className = "user-dropdown-item";
+                            span.dataset.userPk = user["id"];
+                            span.innerText = `${user["firstName"]} ${user["lastName"]}`;
+                            addListener("mouseup", span);
+                            usersDiv.appendChild(span);
+                        }
 
-                    // adding listeners to the users list
-                    addListener("keydown", searchInput, Array.from(usersDiv.children));
-                    addListener("focusout", searchInput);
+                        // adding listeners to the users list
+                        addListener("keydown", searchInput, Array.from(usersDiv.children));
+                        addListener("focusout", searchInput);
+                    }
                 }
+            } else {
+                usersDivActive = false;
+                removeListener("keydown", searchInput);
+                removeListener("focusout", searchInput);
             }
-        } else {
-            usersDivActive = false;
-            removeListener("keydown", searchInput);
-            removeListener("focusout", searchInput);
-        }
-    }, inputTimeout);
-});
+        }, inputTimeout);
+    });
+}
 
 // ***** Header search functions *****
 function createDropDownDiv(parent) {
