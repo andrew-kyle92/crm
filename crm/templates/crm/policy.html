@@ -1,0 +1,34 @@
+{% extends 'theme/base.html' %}
+{% load static crm_extras %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3 align-items-center">
+    <a href="{% url 'customer' customer_pk=customer.pk %}" class="text-decoration-none"><i class="fa-solid fa-backward-step"></i> Back to {{ customer }}'s profile</a>
+    <div>
+        <a role="button" class="btn btn-outline-secondary border-0" href="{% url 'edit-policy' customer_pk=customer.pk policy_pk=policy.id %}"><i class="fa-solid fa-pen-to-square"></i></a>
+    </div>
+</div>
+
+{% for fieldset in policy.get_fieldsets %}
+    <fieldset class="{% if not forloop.last %}mb-4{% endif %}">
+        <h3 class="p-3 mb-0 bg-secondary text-white">{{ fieldset.title }}</h3>
+        {% for field in fieldset.fields %}
+            {% if field|get_type == "list" %}
+                <div class="field-group py-3 m-0 row border border-1">
+                    {% for f in field %}
+                        <div class="col {% if forloop.first %}border-end{% endif %}">
+                            <p class="fw-bold fs-5 m-auto border-bottom">{{ f.label }}</p>
+                            <p>{% if f.label == "Description" %}{{ f.field|safe }}{% else %}{{ f.field }}{% endif %}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="field-group py-3 m-0 row border border-1">
+                    <p class="fw-bold fs-5 m-auto border-bottom">{{ field.label }}</p>
+                    <p>{% if field.label == "Description" %}{{ field.field|safe }}{% else %}{{ field.field }}{% endif %}</p>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </fieldset>
+{% endfor %}
+{% endblock %}

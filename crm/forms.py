@@ -165,7 +165,7 @@ class PolicyForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             "client": forms.TextInput(attrs={"class": "form-control readonly", "readonly": "readonly"}),
-            "provider": forms.TextInput(attrs={"class": "form-control"}),
+            "insurer": forms.TextInput(attrs={"class": "form-control"}),
             "policy_number": forms.TextInput(attrs={"class": "form-control"}),
             "policy_type": forms.Select(attrs={"class": "form-select"}),
             "start_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
@@ -181,7 +181,7 @@ class PolicyForm(forms.ModelForm):
             {
                 "name": "Policy Details",
                 "fields": [
-                    ["client", "provider"],
+                    ["client", "insurer"],
                     ["policy_number", "policy_type"],
                     ["start_date", "end_date"],
                     ["premium_amount", "status"]

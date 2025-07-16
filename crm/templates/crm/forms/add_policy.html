@@ -4,7 +4,7 @@
 {% block content %}
     <div class="container my-3" style="max-height: calc(100vh - 100px); overflow-y: auto;">
         <div class="d-flex justify-content-between border-bottom mb-3">
-            <h3>Add Policy</h3>
+            <h3>{% if action == "add" %}Add{% else %}Edit{% endif %} Policy</h3>
         </div>
 
         <form id="policyForm" method="POST">

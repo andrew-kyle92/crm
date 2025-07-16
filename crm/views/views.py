@@ -108,10 +108,10 @@ class AddActivityView(LoginRequiredMixin, View):
     @staticmethod
     def post(request, customer_pk):
         customer = Client.objects.get(pk=customer_pk)
-        form = ActivityForm(request.POST, request.FILES, instance=customer)
+        form = ActivityForm(request.POST, request.FILES, customer_instance=customer)
         if form.is_valid():
             form.save()
-        return redirect('activities')
+        return redirect('customer', kwargs={"pk", customer.pk})
 
 
 class EditActivityView(LoginRequiredMixin, UpdateView):
@@ -328,6 +328,57 @@ class AddPolicyView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(AddPolicyView, self).get_form_kwargs()
+        kwargs["initial"]["client"] = Client.objects.get(pk=self.kwargs["customer_pk"])
+        return kwargs
+
+
+class ViewPolicyView(LoginRequiredMixin, TemplateView):
+    login_url = reverse_lazy("login")
+    success_url = reverse_lazy("crm")
+    template_name = "crm/policy.html"
+
+    def get(self, request, *args, **kwargs):
+        customer = Client.objects.get(pk=kwargs.get("customer_pk"))
+        policy = Policy.objects.get(pk=kwargs.get("policy_pk"))
+        context = {
+            "title": f"Policy - {policy.__str__()}",
+            "customer": customer,
+            "policy": policy,
+        }
+
+        return render(request, self.template_name, context)
+
+
+class EditPolicyView(LoginRequiredMixin, UpdateView):
+    login_url = reverse_lazy("login")
+    success_url = reverse_lazy("crm")
+    title = "Edit Policy"
+    template_name = "crm/forms/add_policy.html"
+    model = Policy
+    form_class = PolicyForm
+    action = "edit"
+    initial = {}
+
+    def get_context_data(self, **kwargs):
+        context = super(EditPolicyView, self).get_context_data(**kwargs)
+        context["title"] = self.title
+        context["action"] = self.action
+        context["customer"] = Client.objects.get(pk=self.kwargs["customer_pk"])
+        # gtag
+        context["gtag"] = settings.GOOGLE_ANALYTICS_TAG,
+        return context
+
+    def get_object(self, queryset=None):
+        policy_pk = self.kwargs.get("policy_pk")
+        obj = get_object_or_404(Policy, pk=policy_pk)
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        kwargs["customer_pk"] = kwargs.get("customer_pk")
+        return super(EditPolicyView, self).get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(EditPolicyView, self).get_form_kwargs()
         kwargs["initial"]["client"] = Client.objects.get(pk=self.kwargs["customer_pk"])
         return kwargs
 

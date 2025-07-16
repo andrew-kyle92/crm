@@ -55,7 +55,7 @@ class Policy(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='policies')
     policy_number = models.CharField(max_length=100, unique=True)
     policy_type = models.CharField(max_length=50, choices=POLICY_TYPES, null=True, blank=True)
-    provider = models.CharField(max_length=100)
+    insurer = models.CharField(max_length=100)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     premium_amount = models.CharField(max_length=10, null=True, blank=True)
@@ -69,6 +69,32 @@ class Policy(models.Model):
             'health': 'Health',
         }
         return policy_types[self.policy_type]
+
+    def get_fieldsets(self):
+        """Returns a dictionary of fieldsets for this activity."""
+        return [
+            {
+                "title": f"Policy - {self.__str__()}",
+                "fields": [
+                    [
+                        {"label": "Customer", "field": self.client},
+                        {"label": "Insurer", "field": self.insurer}
+                    ],
+                    [
+                        {"label": "Policy Number", "field": self.policy_number},
+                        {"label": "Policy Type", "field": self.policy_type}
+                    ],
+                    [
+                        {"label": "Start Date", "field": self.start_date},
+                        {"label": "End Date", "field": self.end_date},
+                    ],
+                    [
+                        {"label": "Premium", "field": self.premium_amount},
+                        {"label": "Status", "field": self.status},
+                    ]
+                ],
+            },
+        ]
 
     def __str__(self):
         return f"{self.get_policy_type()} ({self.policy_number})"

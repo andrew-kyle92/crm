@@ -43,11 +43,14 @@
                 <div class="px-2 mt-3" style="overflow: auto; max-height: 450px; height: auto">
                     {% for policy in customer.policies.all %}
                         {% if activity.policy != "completed" %}
-{#                        <div class="card mb-2 c-link" onclick="window.location='{% url 'activity' pk=activity.pk %}'">#}
-                        <div class="row mb-2 c-link p-2 mx-0 border rounded-2">
+                        <div class="row mb-2 c-link p-2 mx-0 border rounded-2" onclick="window.location='{% url 'view-policy' customer_pk=customer.pk policy_pk=policy.pk %}'">
                             <div class="col">
                                 <p class="mb-0">Type</p>
                                 <p class="mb-0">{{ policy.policy_type | title }}</p>
+                            </div>
+                            <div class="col mb-0">
+                                <p class="mb-0">Insurer</p>
+                                <p class="mb-0">{{ policy.insurer }}</p>
                             </div>
                             <div class="col mb-0">
                                 <p class="mb-0">Premium</p>
@@ -56,10 +59,6 @@
                             <div class="col mb-0">
                                 <p class="mb-0">Start Date</p>
                                 <p class="mb-0">{{ policy.start_date | date:"m/d/Y" }}</p>
-                            </div>
-                            <div class="col mb-0">
-                                <p class="mb-0">End Date</p>
-                                <p class="mb-0">{{ policy.end_date | date:"m/d/Y" }}</p>
                             </div>
                         </div>
                         {% endif %}
