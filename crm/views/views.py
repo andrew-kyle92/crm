@@ -105,13 +105,21 @@ class AddActivityView(LoginRequiredMixin, View):
         }
         return render(request, self.template_name, context)
 
-    @staticmethod
-    def post(request, customer_pk):
+    def post(self, request, customer_pk):
         customer = Client.objects.get(pk=customer_pk)
         form = ActivityForm(request.POST, request.FILES, customer_instance=customer)
         if form.is_valid():
             form.save()
-        return redirect('customer', kwargs={"pk", customer.pk})
+            return redirect(reverse_lazy('customer', kwargs={"customer_pk": customer_pk}))
+        else:
+            context = {
+                "title": self.title,
+                "form": form,
+                "customer": customer,
+                "action": self.action,
+                "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            }
+            return render(request, self.template_name, context)
 
 
 class EditActivityView(LoginRequiredMixin, UpdateView):

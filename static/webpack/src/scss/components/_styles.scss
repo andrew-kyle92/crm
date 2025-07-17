@@ -161,3 +161,8 @@ header {
 .form-signin {
   background-color: var(--bs-body-bg);
 }
+
+.error-list li {
+  color: var(--c-error);
+  list-style: none;
+}

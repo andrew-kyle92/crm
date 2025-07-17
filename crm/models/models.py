@@ -120,7 +120,7 @@ class Activity(models.Model):
     ]
 
     subject = models.CharField(max_length=255)
-    description = RichTextField()
+    description = RichTextField(null=True, blank=True)
     assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
                                     related_name='activities')
     due_date = models.DateField(blank=True, null=True)
