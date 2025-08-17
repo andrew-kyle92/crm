@@ -16,6 +16,7 @@
                     <div class="col p-3">
                         <p class="mb-0">Street Address</p>
                         <p class="mb-0">
+                            {% if street_address %}
                             {% with street_address=customer|get_street_adr_str %}
                             <a id="customerAddress" href="https://www.google.com/maps/?&q={{ street_address }}" target="_blank">
                                 {{ customer.street_address }}{% if customer.street_address_1 is not None %}, {{ customer.street_address_2 }}{% endif %}
@@ -23,6 +24,7 @@
                                 {{ customer.city }}, {{ customer.state }} {{ customer.zip_code }}
                             </a>
                             {% endwith %}
+                        {% endif %}
                         </p>
                     </div>
                     <div class="col p-3">

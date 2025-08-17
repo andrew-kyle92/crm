@@ -1,14 +1,12 @@
 import json
 from datetime import date
 
-from django.conf import settings, Settings
+from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -39,6 +37,7 @@ class IndexView(LoginRequiredMixin, View):
             "todays_activities": todays_activities,
             "customers": customers,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
         return render(request, self.template_name, context)
 
@@ -52,6 +51,8 @@ class ActivitiesView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ActivitiesView, self).get_context_data(**kwargs)
         context["title"] = self.title
+        # adding DEBUG to context
+        context["debug"] = settings.DEBUG
         # gtag
         context["gtag"] = settings.GOOGLE_ANALYTICS_TAG,
         # initializing the URLFilters class
@@ -102,6 +103,7 @@ class AddActivityView(LoginRequiredMixin, View):
             "customer": customer,
             "action": self.action,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
         return render(request, self.template_name, context)
 
@@ -118,6 +120,7 @@ class AddActivityView(LoginRequiredMixin, View):
                 "customer": customer,
                 "action": self.action,
                 "gtag": settings.GOOGLE_ANALYTICS_TAG,
+                "debug": settings.DEBUG,
             }
             return render(request, self.template_name, context)
 
@@ -137,6 +140,7 @@ class EditActivityView(LoginRequiredMixin, UpdateView):
         context["action"] = self.action
         context["title"] = "Edit Activity"
         context["customer"] = Client.objects.get(pk=self.kwargs.get("customer_pk"))
+        context["debug"] = settings.DEBUG
         return context
 
     def get_object(self, queryset=None):
@@ -167,6 +171,7 @@ class ActivityView(LoginRequiredMixin, View):
             "title": self.title,
             "activity": activity,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
         return render(request, self.template_name, context)
 
@@ -183,6 +188,7 @@ class CustomersView(LoginRequiredMixin, View):
             "title": self.title,
             "customers": customers,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
         return render(request, self.template_name, context)
 
@@ -203,6 +209,7 @@ class AddCustomerView(LoginRequiredMixin, View):
             "map_api_key": self.map_api_key,
             "action": self.action,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
         return render(request, self.template_name, context)
 
@@ -218,6 +225,7 @@ class AddCustomerView(LoginRequiredMixin, View):
                 "map_api_key": self.map_api_key,
                 "action": self.action,
                 "gtag": settings.GOOGLE_ANALYTICS_TAG,
+                "debug": settings.DEBUG,
             }
             return render(request, self.template_name, context)
 
@@ -240,6 +248,7 @@ class EditCustomerView(LoginRequiredMixin, View):
             "action": self.action,
             "customer": customer,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
         return render(request, self.template_name, context)
 
@@ -257,6 +266,7 @@ class EditCustomerView(LoginRequiredMixin, View):
                 "action": self.action,
                 "customer": customer,
                 "gtag": settings.GOOGLE_ANALYTICS_TAG,
+                "debug": settings.DEBUG,
             }
             return render(request, self.template_name, context)
 
@@ -274,6 +284,7 @@ class CustomerView(LoginRequiredMixin, View):
             "title": self.title,
             "customer": customer,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
         return render(request, self.template_name, context)
 
@@ -292,6 +303,7 @@ class AddNoteView(LoginRequiredMixin, View):
             "form": form,
             "activity": task,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
         return render(request, self.template_name, context)
 
@@ -307,13 +319,13 @@ class AddNoteView(LoginRequiredMixin, View):
                 "title": self.title,
                 "activity": activity,
                 "gtag": settings.GOOGLE_ANALYTICS_TAG,
+                "debug": settings.DEBUG,
             }
             return render(request, self.template_name, context)
 
 
 class AddPolicyView(LoginRequiredMixin, CreateView):
     login_url = reverse_lazy("login")
-    success_url = reverse_lazy("crm")
     template_name = "crm/forms/add_policy.html"
     form_class = PolicyForm
     model = Policy
@@ -326,9 +338,15 @@ class AddPolicyView(LoginRequiredMixin, CreateView):
         context["title"] = self.title
         context["action"] = self.action
         context["customer"] = Client.objects.get(pk=self.kwargs["customer_pk"])
+        context["debug"] = settings.DEBUG
         # gtag
         context["gtag"] = settings.GOOGLE_ANALYTICS_TAG,
         return context
+
+    def get_success_url(self):
+        obj = self.object
+        cust = obj.client
+        return reverse_lazy('customer', kwargs={'customer_pk': cust.pk})
 
     def get(self, request, *args, **kwargs):
         kwargs["customer_pk"] = kwargs.get("customer_pk")
@@ -352,6 +370,8 @@ class ViewPolicyView(LoginRequiredMixin, TemplateView):
             "title": f"Policy - {policy.__str__()}",
             "customer": customer,
             "policy": policy,
+            "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
 
         return render(request, self.template_name, context)
@@ -372,6 +392,7 @@ class EditPolicyView(LoginRequiredMixin, UpdateView):
         context["title"] = self.title
         context["action"] = self.action
         context["customer"] = Client.objects.get(pk=self.kwargs["customer_pk"])
+        context["debug"] = settings.DEBUG
         # gtag
         context["gtag"] = settings.GOOGLE_ANALYTICS_TAG,
         return context
@@ -403,6 +424,7 @@ class SettingsView(LoginRequiredMixin, View):
             "settings": user_settings,
             "title": self.title,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
+            "debug": settings.DEBUG,
         }
         return render(request, self.template_name, context)
 
@@ -419,6 +441,7 @@ class EditSettingsView(LoginRequiredMixin, UpdateView):
         context["title"] = self.title
         # gtag
         context["gtag"] = settings.GOOGLE_ANALYTICS_TAG,
+        context["debug"] = settings.DEBUG
 
         return context
 
@@ -443,6 +466,7 @@ class UserLoginView(LoginView):
     def get_context_data(self, **kwargs):
         context = super(UserLoginView, self).get_context_data(**kwargs)
         context["title"] = self.title
+        context["debug"] = settings.DEBUG
         # gtag
         context["gtag"] = settings.GOOGLE_ANALYTICS_TAG,
         return context

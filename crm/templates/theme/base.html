@@ -2,6 +2,7 @@
 {% load static %}
 <html lang="en">
 <head>
+    {% if not debug %}
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ gtag }}"></script>
     <script>
@@ -11,6 +12,7 @@
 
       gtag('config', '{{ gtag }}');
     </script>
+    {% endif %}
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36,7 +38,7 @@
         {% endblock %}
 
         <!-- Main -->
-        <main id="mainContent" class="{% block main_class %}flex-grow-1 overflow-auto pt-5 px-4{% endblock %}">
+        <main id="mainContent" class="{% block main_class %}overflow-auto py-4 px-4{% endblock %}" style="max-height: calc(100vh - 60px); margin-top: 60px">
             {% block content %}{% endblock %}
         </main>
     </div>
