@@ -1,5 +1,6 @@
 // ***** Imports *****
 import * as fetches from './fetches'
+import {dragged, setDragged} from "./main";
 
 // ***** Getting the CSRF Token *****
 export function getCookie(name) {
@@ -80,6 +81,150 @@ export async function markActivityComplete(activityId, customerId) {
         } else {
             window.location.href = `/customers/view/${customerId}/`;
         }
+    }
+}
+
+export const dragStart = (ev) => {
+    setDragged(ev);
+}
+
+export const getData = (targetEl, targetParent, innerEl, hiddenMembers, hohOptions, type) => {
+    let data = {
+        add: {
+            element: {
+                el: targetEl,
+                classesToRemove: ["draggable", "customer"],
+                classesToAdd: ["member"],
+                attrsToRemove: ["draggable"],
+                attrsToAdd: [],
+                operations: {},
+                innerElements: [
+                    {
+                        el: innerEl,
+                        classesToRemove: ["add-customer", "btn-primary"],
+                        classesToAdd: ["remove-customer", "btn-danger"],
+                        operations: {
+                            innerHTML: '<i class="fa-solid fa-minus"></i>',
+                        }
+                    }
+                ]
+            },
+            targetParent: targetParent,
+            hiddenMembers: hiddenMembers,
+            hohOptions: hohOptions,
+        },
+        remove: {
+            element: {
+                el: targetEl,
+                classesToRemove: ["member"],
+                classesToAdd: ["draggable", "customer"],
+                attrsToRemove: [],
+                attrsToAdd: ["draggable"],
+                operations: {},
+                innerElements: [
+                    {
+                        el: innerEl,
+                        classesToRemove: ["remove-customer", "btn-danger"],
+                        classesToAdd: ["add-customer", "btn-primary"],
+                        operations: {
+                            innerHTML: '<i class="fa-solid fa-plus"></i>',
+                        }
+                    }
+                ]
+            },
+            targetParent: targetParent,
+            hiddenMembers: hiddenMembers,
+            hohOptions: hohOptions,
+        }
+    }
+
+    return data[type];
+}
+
+function applyChanges(ops={}, el) {
+    for (const op in ops) {
+        el[op] = ops[op];
+    }
+}
+
+export const moveElement = (data={}) => {
+    let elementData = data.element;
+    let element;
+    let custId = elementData.el.dataset.customerId;
+    let elementParent = elementData.el.parentNode;
+    let innerElBtn;
+    let options = Array.from(data.hiddenMembers.options);
+    let option = options.filter(opt => opt.value === custId)[0];
+    let hohOption = data.hohOptions.find(opt => opt.value === option.value);
+    // changing the selected members and head of household members
+    option.selected = !option.selected;
+    hohOption.hidden = !hohOption.hidden;
+    // determining the parent to determine if the element needs to be destroyed or hidden
+    let destroy = elementParent.id === "membersDiv";
+    if (!destroy) {
+        // cloning the div
+        element = elementData.el.cloneNode(true);
+        elementData.innerElements[0].el = element.querySelector(".add-remove-button-div button");
+        innerElBtn = elementData.innerElements[0].el;
+
+        // hiding the original element
+        elementData.el.hidden = true;
+        elementData.el.classList.remove("d-flex");
+        // adding element to new parent
+        data.targetParent.appendChild(element);
+
+        // removing classes from element
+        element.classList.remove(...elementData.classesToRemove);
+        // adding new classes
+        element.classList.add(...elementData.classesToAdd);
+        // removing attributes
+        elementData.attrsToRemove?.forEach(attr => {
+           if (element.hasAttribute(attr)) {
+               element.removeAttribute(attr);
+           }
+        });
+        // adding attributes
+        elementData.attrsToAdd?.forEach(attr => {
+           if (!!element.hasAttribute(attr)) {
+               element.addAttribute(attr.name, attr.value);
+           }
+        });
+        // checking any operations on element
+        if (Object.keys(elementData.operations).length > 0) {
+            applyChanges(elementData.operations, element);
+        }
+
+        // checking for inner elements
+        if (elementData.innerElements.length > 0) {
+            let innerElements = elementData.innerElements;
+            for (const obj in innerElements) {
+                let objData = innerElements[obj];
+                let innerEl = objData.el;
+                innerEl.classList.remove(...objData.classesToRemove); // removing classes
+                innerEl.classList.add(...objData.classesToAdd); // adding classes
+
+                if (Object.keys(objData.operations).length > 0) {
+                    applyChanges(objData.operations, innerEl);
+                }
+            }
+        }
+
+        // adding the correct listeners
+        let d;
+        if (option.selected) {
+            d = getData(element, elementParent, innerElBtn, data.hiddenMembers, data.hohOptions, "remove");
+        }
+        let moveHandler = () => moveElement(d);
+
+        // adding general listeners back
+        innerElBtn.addEventListener("click", moveHandler);
+        element.addEventListener("dblclick", moveHandler);
+    } else {
+        element = elementData.el;
+        elementParent.removeChild(element);
+        let ogEl = data.targetParent.querySelector(`.customer[data-customer-id="${custId}"]`);
+        ogEl.hidden = false;
+        ogEl.classList.add("d-flex");
     }
 }
 

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from crm.models import Activity, Client, Note, Policy, UserSettings
+from crm.models import Activity, Client, Note, Policy, UserSettings, Household
 
 
 class ActivityForm(forms.ModelForm):
@@ -221,3 +221,46 @@ class SettingsForm(forms.ModelForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autofocus': 'autofocus'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+
+class HouseholdForm(forms.ModelForm):
+    class Meta:
+        model = Household
+        fields = ['name', 'head_of_household', 'members', "notes"]
+        labels = {
+            'name': "Household Name",
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'autofocus': 'autofocus'}),
+            'members': forms.SelectMultiple(attrs={'class': 'form-control', 'hidden': True}),
+            'head_of_household': forms.Select(attrs={'class': 'form-select'}),
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(HouseholdForm, self).__init__(*args, **kwargs)
+
+        self.fieldsets = [
+            {
+                "name": "Add Household",
+                "fields": [
+                    ["name", "head_of_household"],
+                    "members",
+                    "notes",
+                ]
+            }
+        ]
+
+    def iter_fieldsets(self):
+        for fieldset in self.fieldsets:
+            f = {"name": fieldset["name"], "fields": []}
+            for field in fieldset["fields"]:
+                if type(field) is list:
+                    fields = []
+                    for subfield in field:
+                        fields.append(self[subfield])
+                    f["fields"].append(fields)
+                else:
+                    f["fields"].append(self[field])
+
+            yield f

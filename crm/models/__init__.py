@@ -4,5 +4,6 @@ from .models import (
     Policy,
     Activity,
     Note,
-    UserSettings
+    UserSettings,
+    Household,
 )

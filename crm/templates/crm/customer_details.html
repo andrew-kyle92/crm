@@ -8,7 +8,14 @@
                 <div class="d-flex flex-row container-fluid bg-secondary-subtle">
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-city fa-icon"></i></h1>
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
-                        <p class="mb-0 fs-4">{{ customer }}</p>
+                        <div class="d-flex align-content-between">
+                            <p class="mb-0 fs-4">{{ customer }}</p>
+                            {% if customer.has_household %}
+                            <a class="mb-0 fs-4 ms-3" href="{% url 'view-household' household_pk=customer.has_household.pk %}">Go to household</a>
+                            {% else %}
+                            <a class="mb-0 fs-4 ms-3">Add Household</a>
+                            {% endif %}
+                        </div>
                         <a class="link-dark" href="{% url 'edit-customer' customer_pk=customer.pk %}"><i class="fa-solid fa-pen-to-square"></i></a>
                     </div>
                 </div>
@@ -16,15 +23,15 @@
                     <div class="col p-3">
                         <p class="mb-0">Street Address</p>
                         <p class="mb-0">
+                        {% with street_address=customer|get_street_adr_str %}
                             {% if street_address %}
-                            {% with street_address=customer|get_street_adr_str %}
-                            <a id="customerAddress" href="https://www.google.com/maps/?&q={{ street_address }}" target="_blank">
+                            <a id="customerAddress" class="link" href="https://www.google.com/maps/?&q={{ street_address }}" target="_blank">
                                 {{ customer.street_address }}{% if customer.street_address_1 is not None %}, {{ customer.street_address_2 }}{% endif %}
                                 <br>
                                 {{ customer.city }}, {{ customer.state }} {{ customer.zip_code }}
                             </a>
-                            {% endwith %}
-                        {% endif %}
+                            {% endif %}
+                        {% endwith %}
                         </p>
                     </div>
                     <div class="col p-3">
@@ -48,7 +55,7 @@
                         <div class="row mb-2 c-link p-2 mx-0 border rounded-2" onclick="window.location='{% url 'view-policy' customer_pk=customer.pk policy_pk=policy.pk %}'">
                             <div class="col">
                                 <p class="mb-0">Type</p>
-                                <p class="mb-0">{{ policy.policy_type | title }}</p>
+                                <p class="mb-0">{{ policy.get_policy_type }}</p>
                             </div>
                             <div class="col mb-0">
                                 <p class="mb-0">Insurer</p>
@@ -94,7 +101,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h5 class="card-title mb-0">{{ activity.status | unslugify | title }}</h5>
-                                    <h6 class="card-subtitle mt-0">{{ activity.due_date }}</h6>
+                                    <h6 class="card-subtitle mt-0">{% if activity.due_date %}{{ activity.due_date }}{% else %}Due date not set{% endif %}</h6>
                                 </div>
                                 <p class="card-text">{{ activity.subject | truncatechars:100}}</p>
                             </div>

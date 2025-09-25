@@ -3,7 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from crm.views import *
-from crm.views.views import AddPolicyView, EditActivityView
+from crm.views.views import ViewHouseholdView
 
 urlpatterns = [
     path('', IndexView.as_view(), name='index'),
@@ -21,6 +21,9 @@ urlpatterns = [
     path("customers/view/<int:customer_pk>/activity/<int:activity_pk>/add-note/", EditActivityView.as_view(), name="add-note"),
     path("profile/<int:pk>/", views.SettingsView.as_view(), name="settings"),
     path("profile/<int:pk>/edit/", views.EditSettingsView.as_view(), name="edit-settings"),
+    path("households/add/", AddHouseholdView.as_view(), name="add-household"),
+    path("households/edit/<int:household_pk>", AddHouseholdView.as_view(), name="edit-household"),
+    path("households/view/<int:household_pk>/", ViewHouseholdView.as_view(), name="view-household"),
     # authentication_views
     path('login/', views.UserLoginView.as_view(), name='login'),
     path('logout/', views.user_logout, name='logout'),

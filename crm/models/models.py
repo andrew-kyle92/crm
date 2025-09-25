@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 # from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -32,10 +33,27 @@ class Client(models.Model):
         policies = ", ".join([policy.__str__() for policy in self.policies.all()])
         return policies
 
+    def has_household(self):
+        return self.household_members.first()  # or False
+
     class Meta:
         verbose_name = 'Client'
         verbose_name_plural = 'Clients'
         ordering = ['first_name', 'last_name']
+
+
+def get_sentinel_user():
+    return get_user_model().objects.get_or_create(username="deleted")[0]
+
+
+class Household(models.Model):
+    name = models.CharField(max_length=100)
+    head_of_household = models.ForeignKey(Client, on_delete=models.SET(get_sentinel_user), blank=True, null=True, related_name="households_hoh")
+    members = models.ManyToManyField(Client, related_name="household_members", blank=True)
+    notes = RichTextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} Household"
 
 
 class Policy(models.Model):
@@ -44,6 +62,8 @@ class Policy(models.Model):
         ('auto', 'Auto'),
         ('home', 'Home'),
         ('health', 'Health'),
+        ('recreational_vehicle', 'Recreational Vehicle'),
+        ('renters', 'Renters'),
     ]
 
     STATUS_CHOICES = [
@@ -67,6 +87,8 @@ class Policy(models.Model):
             'auto': 'Auto',
             'home': 'Home',
             'health': 'Health',
+            'recreational_vehicle': 'Recreational Vehicle',
+            'renters': 'Renters',
         }
         return policy_types[self.policy_type]
 

@@ -8,10 +8,17 @@ import * as bootstrap from "bootstrap";
 // imports
 import * as functions from "./functions";
 import * as fetches from "./fetches";
-import {applyActivityFilter} from "./functions";
+import { applyActivityFilter, moveElement, getData, dragStart } from "./functions";
 
 // ***** Global Script Variables *****
 const currentUrl = new URL(document.URL);
+export let dragged;
+let listenerRegistry = [];
+
+// ***** Global Script Functions *****
+export function setDragged(ev) {
+    dragged = ev.target;
+}
 
 // on DOMContentLoaded
 window.addEventListener("DOMContentLoaded", () => {
@@ -117,6 +124,15 @@ window.addEventListener("DOMContentLoaded", () => {
                 submitBtnText: "Save Note",
                 initEditor: true,
                 instanceId: null,
+            },
+            household: {
+                type: "household",
+                title: "Edit Note",
+                endpoint: new URL(document.URL).pathname + "add-household/",
+                activityId: null,
+                submitBtnText: "Add Household",
+                initEditor: true,
+                instanceId: null,
             }
         }
         for (let i = 0; i < modalDynBtns.length; i++) {
@@ -218,5 +234,81 @@ window.addEventListener("DOMContentLoaded", () => {
                 });
             });
         }
+    }
+
+    // drag operations on households add/edit page
+    let householdRegex = /households\/(add|edit)\/$/g;
+    if (currentUrl.pathname.match(householdRegex)) {
+        const customers = Array.from(document.getElementsByClassName("customer"));
+        let hiddenMembers = document.getElementById("id_members");
+
+        customers.forEach(customer => {
+            customer.addEventListener("dragstart", dragStart);
+        });
+
+        // hiding all members withing the head of household input
+        let headOfHouseholdSelect = document.getElementById("id_head_of_household");
+        let headOfHouseholdOptions = Array.from(headOfHouseholdSelect.querySelectorAll("option")).filter(el => el.value !== "");
+        headOfHouseholdOptions.forEach(option => {
+            // if (option.value !== "") option.hidden = true;
+            option.hidden = true;
+        });
+
+        // detecting any changes to the membersDiv
+        const membersDiv = document.getElementById("membersDiv");
+        let config = {
+            childList: true
+        }
+        const mutationCallback = function(mutationList, observer) {
+            for (const mutation of mutationList) {
+                if (mutation.target.childElementCount > 0) {
+                    mutation.target.classList.remove("add-space");
+                } else {
+                    if (!mutation.target.className.includes("add-space")) {
+                        mutation.target.classList.add("add-space");
+                    }
+                }
+            }
+        }
+        const observer = new MutationObserver(mutationCallback);
+        observer.observe(membersDiv, config);
+
+        membersDiv.addEventListener("dragover", (e) => {
+            // removing the default behavior
+            e.preventDefault();
+            membersDiv.classList.add("dragover");
+        });
+
+        membersDiv.addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            membersDiv.classList.remove("dragover");
+        });
+
+        membersDiv.addEventListener("drop", (e) => {
+            e.preventDefault();
+
+            let addRemoveBtn = dragged.querySelector(".add-remove-button-div button");
+            let data = functions.getData(dragged, membersDiv, addRemoveBtn, hiddenMembers, headOfHouseholdOptions, "add")
+
+            moveElement(data);
+            membersDiv.classList.remove("dragover");
+        });
+
+        // add/remove button logic and dblclick handler for customer div
+        let addRemoveBtns = Array.from(document.querySelectorAll(".add-remove-button-div button"));
+        addRemoveBtns.forEach(btn => {
+            let custNode = btn.parentNode.parentNode;
+            let data;
+            if(btn.classList.contains("add-customer")) {
+                data = functions.getData(custNode, membersDiv, btn, hiddenMembers, headOfHouseholdOptions, "add");
+            } else {
+                data = functions.getData(custNode, membersDiv, btn, hiddenMembers, headOfHouseholdOptions, "remove");
+            }
+
+            let moveHandler = () => moveElement(data);
+            btn.addEventListener("click", moveHandler);
+            // listener for when you double-click the customer's div
+            custNode.addEventListener("dblclick", moveHandler);
+        });
     }
 });

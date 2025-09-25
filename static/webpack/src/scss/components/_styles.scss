@@ -14,6 +14,18 @@ body {
   color: var(--icon-color);
 }
 
+.draggable {
+  cursor: grab !important;
+}
+
+.dragover {
+  border-width: 3px !important;
+}
+
+.add-space {
+  height: 4rem;
+}
+
 header {
   background-color: var(--bs-card-bg);
   border-bottom: 2px solid var(--primary);

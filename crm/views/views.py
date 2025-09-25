@@ -15,8 +15,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import TemplateView, CreateView, UpdateView
 
-from crm.forms import ActivityForm, LoginForm, CustomerForm, NoteForm, PolicyForm, SettingsForm
-from crm.models import Activity, Client, Note, Policy, UserSettings
+from crm.forms import ActivityForm, LoginForm, CustomerForm, NoteForm, PolicyForm, SettingsForm, HouseholdForm
+from crm.models import Activity, Client, Note, Policy, UserSettings, Household
 from crm.utils import *
 
 
@@ -257,7 +257,7 @@ class EditCustomerView(LoginRequiredMixin, View):
         form = CustomerForm(request.POST, request.FILES, instance=customer)
         if form.is_valid():
             form.save()
-            return redirect(reverse_lazy('customer', kwargs={'pk': customer_pk}))
+            return redirect(reverse_lazy('customer', kwargs={'customer_pk': customer_pk}))
         else:
             context = {
                 "form": form,
@@ -285,6 +285,63 @@ class CustomerView(LoginRequiredMixin, View):
             "customer": customer,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
             "debug": settings.DEBUG,
+        }
+        return render(request, self.template_name, context)
+
+
+class AddHouseholdView(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy("login")
+    redirect_field_name = "next"
+    template_name = "crm/forms/household_form.html"
+    form_class = HouseholdForm
+    model = Household
+    action = "add"
+    title = "Add Household | Households"
+
+    def get_context_data(self, **kwargs):
+        context = super(AddHouseholdView, self).get_context_data(**kwargs)
+        # general context data
+        context["title"] = self.title
+        context["gtag"] = settings.GOOGLE_ANALYTICS_TAG
+        context["debug"] = settings.DEBUG
+
+        # page context
+        context["action"] = self.action
+        context["customers"] = Client.objects.all()
+
+        # form data
+        if self.kwargs.get("customer_id"):
+            customer = Client.objects.get(pk=self.kwargs.get("customer_id"))
+            context["form"].initial.update({"name": customer.last_name})
+
+        return context
+
+    def get(self, request, *args, **kwargs,):
+        customer_id = request.GET.get("customer_id", None)
+        if customer_id:
+            self.kwargs.update({"customer_id": int(customer_id)})
+
+        return super(AddHouseholdView, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy("view-household", kwargs={"household_id": self.object.id})
+
+
+class EditHouseholdView(LoginRequiredMixin, View):
+    pass
+
+
+class ViewHouseholdView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("login")
+    redirect_field_name = "next"
+    title = "Household"
+    template_name = "crm/household_details.html"
+
+    def get(self, request, household_pk, *args, **kwargs):
+        household = Household.objects.get(pk=household_pk)
+        context = {
+            "household": household,
+            "title": f"{household.name} {self.title}"
         }
         return render(request, self.template_name, context)
 

@@ -1,0 +1,24 @@
+<div class="form-group container">
+    <p class="fs-6 mb-1">Customers</p>
+
+    <div id="customersDiv" class="border p-1 rounded">
+    {% for customer in customers %}
+        <div class="customer draggable list-object rounded d-flex flex-row justify-content-between align-items-center mx-1 mb-1" data-customer-id="{{ customer.pk }}" draggable="true">
+            <div class="customer-name">{{ customer }}</div>
+            <div class="add-remove-button-div">
+                <button class="add-customer btn btn-primary btn-sm" type="button"><i class="fa-solid fa-plus"></i></button>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+
+<div class="form-group container">
+    <p class="fs-6 mb-1">New Members</p>
+    <div id="membersDiv" class="border p-1 rounded add-space"></div>
+    {% if field.errors %}
+    {% for error in field.errors %}
+        <p class="mb-0 error">{{ error }}</p>
+        {% endfor %}
+    {% endif %}
+</div>

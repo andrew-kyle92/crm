@@ -1,6 +1,6 @@
 # Django
 */settings.py
-*/migrations/*
+*/__pycache__
 
 # Node
 static/webpack/node_modules

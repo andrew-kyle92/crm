@@ -1,0 +1,170 @@
+{% extends 'theme/base.html' %}
+{% load crm_extras %}
+
+{% block content %}
+    <div class="d-flex justify-content-between">
+        <div id="middleContent" class="col-8">
+            <div id="customerInfo" class="col border rounded-2 me-3 p-0 bg-darker">
+                <div class="d-flex flex-row container-fluid bg-secondary-subtle">
+                    <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-city fa-icon"></i></h1>
+                    <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
+                        <p class="mb-0 fs-4">{{ household.name }} Household </p>
+                        <a class="link-dark" href="{% url 'edit-household' household_pk=household.pk %}"><i class="fa-solid fa-pen-to-square"></i></a>
+                    </div>
+                </div>
+                <div class="d-flex flex-row">
+                    <div class="col p-3">
+                        <p class="mb-0">Street Address</p>
+                        <p class="mb-0">
+                        {% with street_address=household.head_of_household|get_street_adr_str head=household.head_of_household %}
+                            {% if street_address %}
+                            <a id="customerAddress" class="link" href="https://www.google.com/maps/?&q={{ street_address }}" target="_blank">
+                                {{ head.street_address }}{% if head.street_address_1 is not None %}, {{ head.street_address_2 }}{% endif %}
+                                <br>
+                                {{ head.city }}, {{ head.state }} {{ head.zip_code }}
+                            </a>
+                            {% endif %}
+                        {% endwith %}
+                        </p>
+                    </div>
+                    <div class="col p-3">
+                        <p class="mb-0">Birthday(s)</p>
+                        {% for member in household.members.all %}
+                        <p class="mb-0">{{ member.date_of_birth|date:"m/d/Y" }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div id="policiesDiv" class="col border rounded-2 me-3 p-0 mt-5 bg-darker">
+                <div class="d-flex flex-row container-fluid bg-secondary-subtle">
+                    <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-file fa-icon"></i></h1>
+                    <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
+                        <p class="mb-0 fs-4">Policies</p>
+{#                        <a class="link-dark" href="{% url 'add-policy' customer_pk=customer.pk %}">Add policy</a>#}
+                    </div>
+                </div>
+                <div class="px-2" style="overflow: auto; max-height: 450px; height: auto">
+                    <div class="accordion accordion-flush my-3" id="policiesAccordion">
+                        {% for member in household.members.all %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#member-{{ member.pk }}-tickets" aria-expanded="false" aria-controls="member-{{ member.pk }}-tickets">
+                                        {{ member }} {% if member == household.head_of_household %}(head){% endif %}
+                                    </button>
+                                </h2>
+                                <div id="member-{{ member.pk }}-tickets" class="accordion-collapse collapse" data-bs-parent="#policiesAccordion">
+                                    <div class="accordion-body">
+                                        {% for policy in member.policies.all %}
+                                            {% if activity.policy != "completed" %}
+                                            <div class="row mb-2 c-link p-2 mx-0 border rounded-2" onclick="window.location='{% url 'view-policy' customer_pk=member.pk policy_pk=policy.pk %}'">
+                                                <div class="col">
+                                                    <p class="mb-0">Type</p>
+                                                    <p class="mb-0">{{ policy.get_policy_type }}</p>
+                                                </div>
+                                                <div class="col mb-0">
+                                                    <p class="mb-0">Insurer</p>
+                                                    <p class="mb-0">{{ policy.insurer }}</p>
+                                                </div>
+                                                <div class="col mb-0">
+                                                    <p class="mb-0">Premium</p>
+                                                    <p class="mb-0">{{ policy.premium_amount }}</p>
+                                                </div>
+                                                <div class="col mb-0">
+                                                    <p class="mb-0">Start Date</p>
+                                                    <p class="mb-0">{{ policy.start_date | date:"m/d/Y" }}</p>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div id="activitiesDiv" class="col border rounded-2 me-3 p-0 mt-5 bg-darker">
+                <div class="d-flex flex-row container-fluid bg-secondary-subtle">
+                    <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-clipboard fa-icon"></i></h1>
+                    <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
+                        <p class="mb-0 fs-4">Activities</p>
+                    </div>
+                </div>
+                <div class="px-2" style="overflow: auto; max-height: 450px; height: auto">
+                    {# In progress activities #}
+                    {% for member in household.members.all %}
+                    <div class="accordion accordion-flush my-3" id="activitiesAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#member-{{ member.pk }}-activities" aria-expanded="false" aria-controls="member-{{ member.pk }}-activities">
+                                    {{ member }} {% if member == household.head_of_household %}(head){% endif %}
+                                </button>
+                            </h2>
+                            <div id="member-{{ member.pk }}-activities" class="accordion-collapse collapse" data-bs-parent="#activitiesAccordion">
+                                <div class="accordion-body">
+                                {% for activity in member.activities.all %}
+                                    {% if activity.status != "completed" %}
+                                    <div class="card mb-2 c-link" onclick="window.location='{% url 'activity' customer_pk=member.pk activity_pk=activity.pk %}'">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h5 class="card-title mb-0">{{ activity.status | unslugify | title }}</h5>
+                                                <h6 class="card-subtitle mt-0">{% if activity.due_date %}{{ activity.due_date }}{% else %}Due date not set{% endif %}</h6>
+                                            </div>
+                                            <p class="card-text">{{ activity.subject | truncatechars:100}}</p>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div id="rightContent" class="col-4">
+            <div id="contactInfo" class="border rounded-2 me-3 p-0 mb-3 bg-darker">
+                <div class="d-flex flex-row container-fluid bg-secondary-subtle align-items-center">
+                    <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-address-card fa-icon"></i></h1>
+                    <p class="mb-0 fs-4">Contact Card</p>
+                </div>
+                <div class="d-flex flex-col flex-wrap flex-grow-1">
+                    <div id="customerPhones" class="border border-1 p-3 container-fluid m-3 rounded-2">
+                        <p class="mb-1 fs-6"><i class="fa-solid fa-phone fa-icon"></i> Phone</p>
+                        <ul class="list-group list-group-flush">
+                            {% for member in household.members.all %}
+                            <li class="list-group-item">
+                                {% if member.phone %}{{ member.phone }}{% endif %}
+                                {% if member == household.head_of_household %}(head){% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div id="customerEmail" class="border border-1 p-3 container-fluid m-3 rounded-2">
+                        <p class="mb-1 fs-6"><i class="fa-solid fa-envelope fa-icon"></i> Email</p>
+                        <ul class="list-group list-group-flush">
+                            {% for member in household.members.all %}
+                            <li class="list-group-item">
+                                {% if member.email %}{{ member.email }}{% endif %}
+                                {% if member == household.head_of_household %}(head){% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="customerNotes" class="border rounded-2 me-3 p-0 bg-darker">
+                <div class="d-flex flex-row container-fluid bg-secondary-subtle align-items-center">
+                    <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-note-sticky fa-icon"></i></h1>
+                    <p class="mb-0 fs-4">Customer Notes</p>
+                </div>
+                <div class="p-3">
+                    <p class="mb-0">{{ customer.notes|safe }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
