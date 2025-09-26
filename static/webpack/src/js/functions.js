@@ -1,6 +1,7 @@
 // ***** Imports *****
 import * as fetches from './fetches'
 import { setDragged } from "./main";
+import { _Initialize } from "./forms.bundle";
 
 // ***** Getting the CSRF Token *****
 export function getCookie(name) {
@@ -29,6 +30,15 @@ export async function addHousehold(data) {
         // removing the submit button from the original layout
         formWithErrors.removeChild(formWithErrors.querySelector("#submitBtn"));
         data["modal"].querySelector(".modal-body").innerHTML = formWithErrors.outerHTML;
+        // initializing form validation
+        let params = {
+            id: form.id,
+            form: form,
+            ignored: false,
+            enableValidation: true,
+            validateOnlyOnSubmit: false,
+        }
+        _Initialize(params);
     } else {
         window.location.href = new URL(document.URL).origin + res.successUrl;
     }
@@ -45,6 +55,15 @@ export async function addActivityNote(data) {
         // removing the submit button from the original layout
         formWithErrors.removeChild(formWithErrors.querySelector("#submitBtn"));
         data["modal"].querySelector(".modal-body").innerHTML = formWithErrors.outerHTML;
+        // initializing form validation
+        let params = {
+            id: form.id,
+            form: form,
+            ignored: false,
+            enableValidation: true,
+            validateOnlyOnSubmit: false,
+        }
+        _Initialize(params);
     } else {
         // creating the new note card
         if (instanceId) {

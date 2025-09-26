@@ -1,5 +1,5 @@
 {% extends 'theme/base.html' %}
-{% load crm_extras %}
+{% load static crm_extras %}
 
 {% block content %}
     <div class="container my-3" style="max-height: calc(100vh - 100px); overflow-y: auto;">
@@ -7,7 +7,7 @@
             <h3>{% if action == "add" %}Add{% else %}Edit{% endif %} Policy</h3>
         </div>
 
-        <form id="policyForm" method="POST">
+        <form id="policyForm" method="POST" novalidate>
             {% csrf_token %}
 
             {% if form.non_field_errors %}
@@ -76,4 +76,17 @@
             <a role="button" class="btn btn-secondary btn-lg" href="{% url 'customer' customer_pk=customer.pk %}">Cancel</a>
         </form>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+	<script src="{% static 'webpack/src/js/forms.bundle.js' %}"></script>
+    <script>
+        let ignoredClasses = {{ form_validator.ignored_classes|safe }};
+        let ignoreValidation = {{ form_validator.ignore_validation|safe }};
+        let validateOnlyOnSubmit = {{ form_validator.validate_only_on_submit|safe }};
+        let forms = document.getElementsByTagName('form');
+        if (forms.length > 0) {
+            fv._InitializeForms(forms, ignoredClasses, ignoredClasses, validateOnlyOnSubmit);
+        }
+    </script>
 {% endblock %}

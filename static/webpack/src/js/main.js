@@ -10,7 +10,8 @@ import * as functions from "./functions";
 import * as fetches from "./fetches";
 import { applyActivityFilter, moveElement, getData, dragStart } from "./functions";
 import * as household from "./views/household_form";
-import {initHouseholdFormLogic} from "./views/household_form";
+import { initHouseholdFormLogic } from "./views/household_form";
+import { _Initialize } from "./forms.bundle"
 
 // ***** Global Script Variables *****
 const currentUrl = new URL(document.URL);
@@ -220,6 +221,14 @@ window.addEventListener("DOMContentLoaded", () => {
                             modalSubmitBtn.addEventListener("click", async () => functions.addHousehold(data));
                             break;
                     }
+                    let params = {
+                        id: form.id,
+                        form: form,
+                        ignored: true,
+                        enableValidation: true,
+                        validateOnlyOnSubmit: true,
+                    }
+                    _Initialize(params);
                 }
             });
         }

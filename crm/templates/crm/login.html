@@ -8,7 +8,7 @@
 
 {% block outer_block %}
     <div class="form-signin w-25 m-auto border rounded-2 p-3">
-        <form method="post">
+        <form id="loginForm" method="post" novalidate>
             {% csrf_token %}
 
             <img class="mb-4" src="{% static 'img/logo.png' %}" alt="" width="72" height="72">
@@ -33,4 +33,17 @@
             <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+	<script src="{% static 'webpack/src/js/forms.bundle.js' %}"></script>
+    <script>
+        let ignoredClasses = {{ form_validator.ignored_classes|safe }};
+        let ignoreValidation = {{ form_validator.ignore_validation|safe }};
+        let validateOnlyOnSubmit = {{ form_validator.validate_only_on_submit|safe }};
+        let forms = document.getElementsByTagName('form');
+        if (forms.length > 0) {
+            fv._InitializeForms(forms, ignoredClasses, ignoredClasses, validateOnlyOnSubmit);
+        }
+    </script>
 {% endblock %}

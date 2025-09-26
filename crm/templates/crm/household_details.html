@@ -164,6 +164,19 @@
                     <p class="mb-0">{{ customer.notes|safe }}</p>
                 </div>
             </div>
+            <div id="householdMembers" class="border rounded-2 me-3 p-0 mb-3 bg-darker">
+                <div class="d-flex flex-row container-fluid bg-secondary-subtle align-items-center">
+                    <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-users fa-icon"></i></h1>
+                    <p class="mb-0 fs-4">Household Members</p>
+                </div>
+                <div class="p-3">
+                    <ul class="list-group list-group-flush">
+                        {% for member in household.members.all %}
+                            <li class="list-group-item"><a href="{% url 'customer' customer_pk=member.pk %}">{{ member }} {% if member == household.head_of_household %}(head){% endif %}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

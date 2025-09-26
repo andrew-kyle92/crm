@@ -3,7 +3,7 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib.auth import logout
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
@@ -97,6 +97,8 @@ class AddActivityView(LoginRequiredMixin, View):
     def get(self, request, customer_pk):
         customer = Client.objects.get(pk=customer_pk)
         form = ActivityForm(initial={"assigned_to": request.user, "client": customer}, customer_instance=customer)
+        # form validator context
+        form_validator = FormsValidator()
         context = {
             "title": self.title,
             "form": form,
@@ -104,6 +106,7 @@ class AddActivityView(LoginRequiredMixin, View):
             "action": self.action,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
             "debug": settings.DEBUG,
+            "form_validator": form_validator.get_context()
         }
         return render(request, self.template_name, context)
 
@@ -114,6 +117,7 @@ class AddActivityView(LoginRequiredMixin, View):
             form.save()
             return redirect(reverse_lazy('customer', kwargs={"customer_pk": customer_pk}))
         else:
+            form_validator = FormsValidator()
             context = {
                 "title": self.title,
                 "form": form,
@@ -121,6 +125,7 @@ class AddActivityView(LoginRequiredMixin, View):
                 "action": self.action,
                 "gtag": settings.GOOGLE_ANALYTICS_TAG,
                 "debug": settings.DEBUG,
+                "form_validator": form_validator.get_context()
             }
             return render(request, self.template_name, context)
 
@@ -141,6 +146,11 @@ class EditActivityView(LoginRequiredMixin, UpdateView):
         context["title"] = "Edit Activity"
         context["customer"] = Client.objects.get(pk=self.kwargs.get("customer_pk"))
         context["debug"] = settings.DEBUG
+
+        # form validator context
+        form_validator = FormsValidator()
+        context["form_validator"] = form_validator.get_context()
+
         return context
 
     def get_object(self, queryset=None):
@@ -167,6 +177,8 @@ class ActivityView(LoginRequiredMixin, View):
     def get(self, request, customer_pk, activity_pk):
         activity = Activity.objects.get(pk=activity_pk)
         self.title = activity.subject[0:50] + " | Activity"
+        # form validator context
+        form_validator = FormsValidator()
         context = {
             "title": self.title,
             "activity": activity,
@@ -203,6 +215,7 @@ class AddCustomerView(LoginRequiredMixin, View):
 
     def get(self, request):
         form = CustomerForm()
+        form_validator = FormsValidator()
         context = {
             "title": self.title,
             "form": form,
@@ -210,6 +223,7 @@ class AddCustomerView(LoginRequiredMixin, View):
             "action": self.action,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
             "debug": settings.DEBUG,
+            "form_validator": form_validator,
         }
         return render(request, self.template_name, context)
 
@@ -219,6 +233,7 @@ class AddCustomerView(LoginRequiredMixin, View):
             form.save()
             return redirect('customers')
         else:
+            form_validator = FormsValidator()
             context = {
                 "form": form,
                 "title": self.title,
@@ -226,6 +241,7 @@ class AddCustomerView(LoginRequiredMixin, View):
                 "action": self.action,
                 "gtag": settings.GOOGLE_ANALYTICS_TAG,
                 "debug": settings.DEBUG,
+                "form_validator": form_validator,
             }
             return render(request, self.template_name, context)
 
@@ -241,6 +257,7 @@ class EditCustomerView(LoginRequiredMixin, View):
     def get(self, request, customer_pk, *args, **kwargs):
         customer = Client.objects.get(pk=customer_pk)
         form = CustomerForm(instance=customer)
+        form_validator = FormsValidator()
         context = {
             "title": self.title,
             "form": form,
@@ -249,6 +266,7 @@ class EditCustomerView(LoginRequiredMixin, View):
             "customer": customer,
             "gtag": settings.GOOGLE_ANALYTICS_TAG,
             "debug": settings.DEBUG,
+            "form_validator": form_validator,
         }
         return render(request, self.template_name, context)
 
@@ -259,6 +277,7 @@ class EditCustomerView(LoginRequiredMixin, View):
             form.save()
             return redirect(reverse_lazy('customer', kwargs={'customer_pk': customer_pk}))
         else:
+            form_validator = FormsValidator()
             context = {
                 "form": form,
                 "title": self.title,
@@ -267,6 +286,7 @@ class EditCustomerView(LoginRequiredMixin, View):
                 "customer": customer,
                 "gtag": settings.GOOGLE_ANALYTICS_TAG,
                 "debug": settings.DEBUG,
+                "form_validator": form_validator,
             }
             return render(request, self.template_name, context)
 
@@ -308,6 +328,13 @@ class AddHouseholdView(LoginRequiredMixin, CreateView):
         # page context
         context["action"] = self.action
         context["customers"] = Client.objects.all()
+
+        # form validator context
+        form_validator = FormsValidator()
+        context["form_validator"] = form_validator.get_context()
+
+        # cancel url
+        context["cancel_url"] = reverse_lazy("index")
 
         # form data
         if self.kwargs.get("customer_id"):
@@ -352,7 +379,12 @@ class EditHouseholdView(LoginRequiredMixin, UpdateView):
         context["action"] = self.action
         context["customers"] = Client.objects.all()
 
-        print(context["form"].initial)
+        # form validator context
+        form_validator = FormsValidator()
+        context["form_validator"] = form_validator.get_context()
+
+        # cancel url
+        context["cancel_url"] = reverse_lazy("view-household", kwargs={"household_pk": self.object.id})
 
         return context
 
@@ -427,6 +459,11 @@ class AddPolicyView(LoginRequiredMixin, CreateView):
         context["debug"] = settings.DEBUG
         # gtag
         context["gtag"] = settings.GOOGLE_ANALYTICS_TAG,
+
+        # form validator context
+        form_validator = FormsValidator()
+        context["form_validator"] = form_validator.get_context()
+
         return context
 
     def get_success_url(self):
@@ -555,6 +592,9 @@ class UserLoginView(LoginView):
         context["debug"] = settings.DEBUG
         # gtag
         context["gtag"] = settings.GOOGLE_ANALYTICS_TAG,
+        # form_validator context
+        form_validator = FormsValidator()
+        context["form_validator"] = form_validator.get_context()
         return context
 
 
