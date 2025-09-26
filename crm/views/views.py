@@ -327,8 +327,37 @@ class AddHouseholdView(LoginRequiredMixin, CreateView):
         return reverse_lazy("view-household", kwargs={"household_id": self.object.id})
 
 
-class EditHouseholdView(LoginRequiredMixin, View):
-    pass
+class EditHouseholdView(LoginRequiredMixin, UpdateView):
+    login_url = reverse_lazy("login")
+    redirect_field_name = "next"
+    title = "Edit Household | Households"
+    template_name = "crm/forms/household_form.html"
+    model = Household
+    form_class = HouseholdForm
+    action = "edit"
+
+    def get_object(self, queryset=None):
+        household_pk = self.kwargs.get("household_pk")
+        obj = get_object_or_404(Household, pk=household_pk)
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(EditHouseholdView, self).get_context_data(**kwargs)
+        # general context data
+        context["title"] = self.title
+        context["gtag"] = settings.GOOGLE_ANALYTICS_TAG
+        context["debug"] = settings.DEBUG
+
+        # page context
+        context["action"] = self.action
+        context["customers"] = Client.objects.all()
+
+        print(context["form"].initial)
+
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("view-household", kwargs={"household_pk": self.object.id})
 
 
 class ViewHouseholdView(LoginRequiredMixin, View):

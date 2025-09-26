@@ -2,7 +2,7 @@ from datetime import datetime as dt
 
 from django.template.loader import render_to_string
 
-from crm.forms import NoteForm
+from crm.forms import NoteForm, HouseholdForm
 from crm.models import *
 
 from django.db.models import Q
@@ -65,12 +65,19 @@ class ModalContextBuilder:
             form_kwargs["instance"] = instance
             # initializing the form
             form = NoteForm(**form_kwargs)
+        elif data.get("type") == "household":
+            client_instance = Client.objects.get(pk=modal_content["vars"]["clientId"])
+            form_kwargs["initial"] = {"name": client_instance.last_name, "members": [client_instance], "head_of_household": client_instance}
+            form = HouseholdForm(**form_kwargs)
 
         # prepping the template context
         if data.get("type") == "note" or data.get("type") == "editNote":
             activity = Activity.objects.get(pk=modal_content["vars"]["activityId"])
             modal_content["template_context"]["activity"] = activity
-            modal_content["template_context"]["form"] = form
+        elif data.get("type") == "household" or data.get("type") == "editHousehold":
+            modal_content["template_context"]["customers"] = Client.objects.all()
+
+        modal_content["template_context"]["form"] = form
 
         html = render_to_string(template_name=modal_content["template"], context=modal_content["template_context"])
         return html
@@ -88,6 +95,12 @@ class ModalContextBuilder:
                 "template": "crm/forms/notes_form.html",
                 "kwargsList": ["user", "activityId", "instanceId"],
                 "template_context": {"activity": None, "form": None},
+                "vars": {},
+            },
+            'household': {
+                "template": "crm/forms/household_form.html",
+                "kwargsList": ["clientId"],
+                "template_context": {"client": None, "form": None},
                 "vars": {},
             },
         }
@@ -138,3 +151,12 @@ class URLFilters:
             filter_dict["status__exact"] = "completed"
 
         return filter_dict
+
+
+def get_form_class(form_class):
+    if form_class == "NoteForm":
+        return NoteForm
+    elif form_class == "HouseholdForm":
+        return HouseholdForm
+    else:
+        return None

@@ -9,6 +9,8 @@ import * as bootstrap from "bootstrap";
 import * as functions from "./functions";
 import * as fetches from "./fetches";
 import { applyActivityFilter, moveElement, getData, dragStart } from "./functions";
+import * as household from "./views/household_form";
+import {initHouseholdFormLogic} from "./views/household_form";
 
 // ***** Global Script Variables *****
 const currentUrl = new URL(document.URL);
@@ -112,7 +114,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 type: "note",
                 title: "Add Note",
                 endpoint: new URL(document.URL).pathname + "add-note/",
-                activityId: null,
+                dataReference: "activityId",
                 submitBtnText: "Add Note",
                 initEditor: true,
             },
@@ -120,16 +122,16 @@ window.addEventListener("DOMContentLoaded", () => {
                 type: "editNote",
                 title: "Edit Note",
                 endpoint: new URL(document.URL).pathname + "add-note/",
-                activityId: null,
+                dataReference: "activityId",
                 submitBtnText: "Save Note",
                 initEditor: true,
                 instanceId: null,
             },
             household: {
                 type: "household",
-                title: "Edit Note",
-                endpoint: new URL(document.URL).pathname + "add-household/",
-                activityId: null,
+                title: "Add Household",
+                endpoint: new URL(document.URL).origin + "/add-household/",
+                dataReference: "clientId",
                 submitBtnText: "Add Household",
                 initEditor: true,
                 instanceId: null,
@@ -145,7 +147,8 @@ window.addEventListener("DOMContentLoaded", () => {
                 let modalBody = modal.querySelector(".modal-body");
                 let modalSubmitBtn = modal.querySelector("#modalSubmitBtn");
                 let modalData = contentTypes[contentType];
-                modalData.activityId = modalDynBtn.dataset.activityId;
+                // modalData.activityId = modalDynBtn.dataset.activityId;
+                modalData[modalData.dataReference] = modalDynBtn.dataset[modalData.dataReference];
                 if (contentType === "editNote") {
                     modalData["instanceId"] = modalDynBtn.dataset.instanceId;
                 }
@@ -160,8 +163,13 @@ window.addEventListener("DOMContentLoaded", () => {
                     let html = parser.parseFromString(res.html, "text/html");
                     // getting the form element from the parsed HTML
                     let form = html.querySelector("form");
+                    let submitBtn = form.querySelector("#submitBtn");
                     // removing the submit button from the original layout
-                    form.removeChild(form.querySelector("#submitBtn"));
+                    if (submitBtn.parentNode === form) {
+                        form.removeChild(submitBtn);
+                    } else {
+                        form.removeChild(submitBtn.parentNode);
+                    }
                     // changing the modal title and body
                     modalHeader.innerText = modalData.title;
                     modalBody.innerHTML = form.outerHTML;
@@ -169,7 +177,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     // updating the modal
                     modalInstance.handleUpdate();
 
-                    if (contentType.initEditor) {
+                    if (contentTypes[contentType].initEditor) {
                         // Re-initialize Prose editor
                         if (window.djangoProse && typeof window.djangoProse.init === 'function') {
                             window.djangoProse.init();
@@ -200,6 +208,16 @@ window.addEventListener("DOMContentLoaded", () => {
                                 instanceId: modalData["instanceId"],
                             }
                             modalSubmitBtn.addEventListener("click", async () => functions.addActivityNote(data));
+                            break;
+                        case "household":
+                            initHouseholdFormLogic();
+                            // adding and onclick function
+                            data = {
+                                formId: form.id,
+                                modalInstance: modalInstance,
+                                modal: modal,
+                            }
+                            modalSubmitBtn.addEventListener("click", async () => functions.addHousehold(data));
                             break;
                     }
                 }
@@ -237,78 +255,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // drag operations on households add/edit page
-    let householdRegex = /households\/(add|edit)\/$/g;
+    let householdRegex = /households\/(add|edit)\/(\d+|\s)$/g;
     if (currentUrl.pathname.match(householdRegex)) {
-        const customers = Array.from(document.getElementsByClassName("customer"));
-        let hiddenMembers = document.getElementById("id_members");
-
-        customers.forEach(customer => {
-            customer.addEventListener("dragstart", dragStart);
-        });
-
-        // hiding all members withing the head of household input
-        let headOfHouseholdSelect = document.getElementById("id_head_of_household");
-        let headOfHouseholdOptions = Array.from(headOfHouseholdSelect.querySelectorAll("option")).filter(el => el.value !== "");
-        headOfHouseholdOptions.forEach(option => {
-            // if (option.value !== "") option.hidden = true;
-            option.hidden = true;
-        });
-
-        // detecting any changes to the membersDiv
-        const membersDiv = document.getElementById("membersDiv");
-        let config = {
-            childList: true
-        }
-        const mutationCallback = function(mutationList, observer) {
-            for (const mutation of mutationList) {
-                if (mutation.target.childElementCount > 0) {
-                    mutation.target.classList.remove("add-space");
-                } else {
-                    if (!mutation.target.className.includes("add-space")) {
-                        mutation.target.classList.add("add-space");
-                    }
-                }
-            }
-        }
-        const observer = new MutationObserver(mutationCallback);
-        observer.observe(membersDiv, config);
-
-        membersDiv.addEventListener("dragover", (e) => {
-            // removing the default behavior
-            e.preventDefault();
-            membersDiv.classList.add("dragover");
-        });
-
-        membersDiv.addEventListener("dragleave", (e) => {
-            e.preventDefault();
-            membersDiv.classList.remove("dragover");
-        });
-
-        membersDiv.addEventListener("drop", (e) => {
-            e.preventDefault();
-
-            let addRemoveBtn = dragged.querySelector(".add-remove-button-div button");
-            let data = functions.getData(dragged, membersDiv, addRemoveBtn, hiddenMembers, headOfHouseholdOptions, "add")
-
-            moveElement(data);
-            membersDiv.classList.remove("dragover");
-        });
-
-        // add/remove button logic and dblclick handler for customer div
-        let addRemoveBtns = Array.from(document.querySelectorAll(".add-remove-button-div button"));
-        addRemoveBtns.forEach(btn => {
-            let custNode = btn.parentNode.parentNode;
-            let data;
-            if(btn.classList.contains("add-customer")) {
-                data = functions.getData(custNode, membersDiv, btn, hiddenMembers, headOfHouseholdOptions, "add");
-            } else {
-                data = functions.getData(custNode, membersDiv, btn, hiddenMembers, headOfHouseholdOptions, "remove");
-            }
-
-            let moveHandler = () => moveElement(data);
-            btn.addEventListener("click", moveHandler);
-            // listener for when you double-click the customer's div
-            custNode.addEventListener("dblclick", moveHandler);
-        });
+        household.initHouseholdFormLogic();
     }
 });

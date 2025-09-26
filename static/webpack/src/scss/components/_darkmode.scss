@@ -289,11 +289,13 @@
     border: 1px solid var(--bs-border-color);
   }
 
-  .modal-header,
-  .modal-body,
-  .modal-footer {
-    background-color: var(--bs-card-bg);
+  .modal-body {
     border-color: var(--bs-border-color);
+  }
+
+  .modal-header,
+  .modal-footer {
+    background-color: var(--primary-dark);
   }
 
   /* Buttons */

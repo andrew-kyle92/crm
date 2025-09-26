@@ -1,7 +1,7 @@
 from .views import (
     IndexView, ActivitiesView, AddActivityView, EditActivityView, ActivityView, CustomersView, AddCustomerView,
     EditCustomerView, CustomerView, AddNoteView, AddPolicyView, ViewPolicyView, EditPolicyView, UserLoginView, logout,
-    AddHouseholdView
+    AddHouseholdView, EditHouseholdView, ViewHouseholdView
 )
 
 from .fetch_views import (

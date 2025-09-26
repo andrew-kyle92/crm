@@ -1,6 +1,7 @@
 # ********** Fetch requests **********
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 
 from crm.models import *
 from crm.utils import *
@@ -64,24 +65,34 @@ def fetch_modal_data(request):
 
 def fetch_submit_form(request):
     post_data = request.POST.copy()
+    form_class = get_form_class(post_data.pop("form_class")[0])
     if "instance_id" in post_data:
         instance = Note.objects.get(pk=post_data.pop("instance_id")[0])
     else:
         instance = None
-    form = NoteForm(request.POST, instance=instance)
+    form = form_class(request.POST, instance=instance)
     if form.is_valid():
         instance = form.save()
-        instance_dict = instance.__dict__
-        instance_dict.pop("_state")
-        instance_dict["formatted_date"] = instance.get_formatted_date()
-        context = {
-            "status": "success",
-            "instance": instance_dict,
-        }
+        context = {"status": "success"}
+        if form_class.__name__ == "NoteForm":
+            instance_dict = instance.__dict__
+            instance_dict.pop("_state")
+            instance_dict["formatted_date"] = instance.get_formatted_date()
+            context["instance"] = instance_dict
+        else:
+            context["successUrl"] = reverse_lazy("view-household", kwargs={"household_pk": instance.pk})
+
         return JsonResponse(context, safe=False)
     else:
-        activity = Activity.objects.get(pk=form.cleaned_data["activity"].pk)
-        html = render_to_string("crm/forms/notes_form.html", {"form": form, "activity": activity})
+        context = {"form": form}
+        if form_class.__name__ == "NoteForm":
+            activity = Activity.objects.get(pk=form.cleaned_data["activity"].pk)
+            context["activity"] = activity
+            template = "crm/forms/notes_form.html"
+        else:
+            template = "crm/forms/household_form.html"
+
+        html = render_to_string(template, context)
         context = {
             "status": "error",
             "html": html,

@@ -41,7 +41,6 @@
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-file fa-icon"></i></h1>
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
                         <p class="mb-0 fs-4">Policies</p>
-{#                        <a class="link-dark" href="{% url 'add-policy' customer_pk=customer.pk %}">Add policy</a>#}
                     </div>
                 </div>
                 <div class="px-2" style="overflow: auto; max-height: 450px; height: auto">
@@ -49,7 +48,7 @@
                         {% for member in household.members.all %}
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#member-{{ member.pk }}-tickets" aria-expanded="false" aria-controls="member-{{ member.pk }}-tickets">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#member-{{ member.pk }}-tickets" aria-expanded="false" aria-controls="member-{{ member.pk }}-tickets">
                                         {{ member }} {% if member == household.head_of_household %}(head){% endif %}
                                     </button>
                                 </h2>

@@ -8,15 +8,16 @@
                 <div class="d-flex flex-row container-fluid bg-secondary-subtle">
                     <h1 class="me-2 mb-0 align-content-center"><i class="fa-solid fa-city fa-icon"></i></h1>
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
+                        <p class="mb-0 fs-4">{{ customer }}</p>
+
                         <div class="d-flex align-content-between">
-                            <p class="mb-0 fs-4">{{ customer }}</p>
                             {% if customer.has_household %}
-                            <a class="mb-0 fs-4 ms-3" href="{% url 'view-household' household_pk=customer.has_household.pk %}">Go to household</a>
+                                <a class="link-dark me-3" href="{% url 'view-household' household_pk=customer.has_household.pk %}"><i class="fa-solid fa-users"></i> View Household</a>
                             {% else %}
-                            <a class="mb-0 fs-4 ms-3">Add Household</a>
+                                <a class="modal-dyn-btn link-dark me-3" role="button" href="#" data-client-id="{{ customer.pk }}" data-content-type="household" data-bs-toggle="modal" data-bs-target="#householdModal"><i class="fa-solid fa-user-plus"></i> Add Household</a>
                             {% endif %}
+                            <a class="link-dark" href="{% url 'edit-customer' customer_pk=customer.pk %}"><i class="fa-solid fa-pen-to-square"></i></a>
                         </div>
-                        <a class="link-dark" href="{% url 'edit-customer' customer_pk=customer.pk %}"><i class="fa-solid fa-pen-to-square"></i></a>
                     </div>
                 </div>
                 <div class="d-flex flex-row">
@@ -162,4 +163,29 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block modal_content %}
+    <div id="householdModal" class="modal modal-lg fade" tabindex="-1" aria-labelledby="householdModalLabel" data-bs-keyboard="true" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="householdModalLabel">Modal Title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button id="modalSubmitBtn" type="button" class="btn btn-primary">Add Household</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+	<link href="https://unpkg.com/trix@2.1.3/dist/trix.css" media="all" rel="stylesheet">
+    <link href="/static/prose/editor.css" media="all" rel="stylesheet">
+    <script src="https://unpkg.com/trix@2.1.3/dist/trix.umd.min.js"></script>
+    <script src="/static/prose/editor.js"></script>
 {% endblock %}

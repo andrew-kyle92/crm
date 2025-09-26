@@ -1,6 +1,6 @@
 // ***** Imports *****
 import * as fetches from './fetches'
-import {dragged, setDragged} from "./main";
+import { setDragged } from "./main";
 
 // ***** Getting the CSRF Token *****
 export function getCookie(name) {
@@ -17,6 +17,21 @@ export function getCookie(name) {
 
 export function applyActivityFilter(data) {
     window.location.href = new URL(document.URL) + "?" + new URLSearchParams(data);
+}
+
+export async function addHousehold(data) {
+    let form = document.getElementById(data["formId"]);
+    let res = await fetches.submitHousehold(form)
+    if (res.status === "error") {
+        let parser = new DOMParser()
+        let html = parser.parseFromString(res["html"], 'text/html');
+        let formWithErrors = html.querySelector("form");
+        // removing the submit button from the original layout
+        formWithErrors.removeChild(formWithErrors.querySelector("#submitBtn"));
+        data["modal"].querySelector(".modal-body").innerHTML = formWithErrors.outerHTML;
+    } else {
+        window.location.href = new URL(document.URL).origin + res.successUrl;
+    }
 }
 
 export async function addActivityNote(data) {
@@ -147,17 +162,20 @@ function applyChanges(ops={}, el) {
     }
 }
 
-export const moveElement = (data={}) => {
+export const moveElement = (data={}, initial=false) => {
     let elementData = data.element;
     let element;
     let custId = elementData.el.dataset.customerId;
     let elementParent = elementData.el.parentNode;
     let innerElBtn;
-    let options = Array.from(data.hiddenMembers.options);
+    let options = data.hiddenMembers;
     let option = options.filter(opt => opt.value === custId)[0];
     let hohOption = data.hohOptions.find(opt => opt.value === option.value);
-    // changing the selected members and head of household members
-    option.selected = !option.selected;
+    if (!initial) {
+        // changing the selected members
+        option.selected = !option.selected;
+    }
+    // unhiding the household members
     hohOption.hidden = !hohOption.hidden;
     // determining the parent to determine if the element needs to be destroyed or hidden
     let destroy = elementParent.id === "membersDiv";
@@ -226,9 +244,4 @@ export const moveElement = (data={}) => {
         ogEl.hidden = false;
         ogEl.classList.add("d-flex");
     }
-}
-
-// ********** Modal Content Type functions **********
-export function setNoteContentType() {
-
 }

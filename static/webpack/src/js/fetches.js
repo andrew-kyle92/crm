@@ -20,6 +20,22 @@ export const submitActivityNote = async (form, instanceId=null) => {
     if (instanceId) {
         formData.append("instance_id", instanceId);
     }
+    formData.append("form_class", "NoteForm");
+
+    return await fetch('/fetch-submit-form/',  {
+        method: 'post',
+        headers: {
+            'X-CSRFToken': functions.getCookie("csrftoken"),
+        },
+        body: formData,
+    }).then(async response => {
+        return response.json()
+    });
+}
+
+export const submitHousehold = async (form) => {
+    let formData = new FormData(form);
+    formData.append("form_class", "HouseholdForm");
 
     return await fetch('/fetch-submit-form/',  {
         method: 'post',
