@@ -64,6 +64,7 @@ class Policy(models.Model):
         ('health', 'Health'),
         ('recreational_vehicle', 'Recreational Vehicle'),
         ('renters', 'Renters'),
+        ('business', 'Business'),
     ]
 
     STATUS_CHOICES = [
@@ -89,7 +90,12 @@ class Policy(models.Model):
             'health': 'Health',
             'recreational_vehicle': 'Recreational Vehicle',
             'renters': 'Renters',
+            'business': 'Business',
         }
+
+        if not self.policy_type:
+            return ""
+
         return policy_types[self.policy_type]
 
     def get_fieldsets(self):

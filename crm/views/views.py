@@ -27,9 +27,9 @@ class IndexView(LoginRequiredMixin, View):
     template_name = "crm/index.html"
 
     def get(self, request):
-        all_activities = Activity.objects.all().order_by('-due_date')
-        todays_activities = all_activities.filter(due_date__exact=date.today()).order_by('-due_date')
-        customers = Client.objects.all()
+        all_activities = Activity.objects.all().order_by('-due_date')[:8]
+        todays_activities = Activity.objects.filter(due_date__exact=date.today()).order_by('-due_date')
+        customers = Client.objects.all()[:16]
         context = {
             "title": self.title,
             "user": request.user,

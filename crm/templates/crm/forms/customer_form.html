@@ -83,6 +83,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'webpack/src/js/addr_script.js' %}"></script>
 <script
     src="https://maps.googleapis.com/maps/api/js?key={{ map_api_key }}&loading=async&libraries=places&callback=initAutocomplete"
     async defer
