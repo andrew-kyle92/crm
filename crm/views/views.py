@@ -502,7 +502,6 @@ class ViewPolicyView(LoginRequiredMixin, TemplateView):
 
 class EditPolicyView(LoginRequiredMixin, UpdateView):
     login_url = reverse_lazy("login")
-    success_url = reverse_lazy("crm")
     title = "Edit Policy"
     template_name = "crm/forms/add_policy.html"
     model = Policy
@@ -533,6 +532,15 @@ class EditPolicyView(LoginRequiredMixin, UpdateView):
         kwargs = super(EditPolicyView, self).get_form_kwargs()
         kwargs["initial"]["client"] = Client.objects.get(pk=self.kwargs["customer_pk"])
         return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "view-policy",
+            kwargs={
+                "customer_pk": self.object.client.pk,
+                "policy_pk": self.object.pk,
+            }
+        )
 
 
 class SettingsView(LoginRequiredMixin, View):
