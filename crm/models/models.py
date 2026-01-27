@@ -154,7 +154,7 @@ class Activity(models.Model):
     due_date = models.DateField(blank=True, null=True)
     completed_date = models.DateField(blank=True, null=True)
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium', blank=True, null=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress', blank=True, null=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='activities', blank=True, null=True)
     policy = models.ForeignKey(Policy, on_delete=models.DO_NOTHING, related_name='policies', blank=True, null=True)
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES, blank=True, null=True)
